@@ -11,7 +11,9 @@ import statistics
 import tempfile
 from pathlib import Path
 
+# Keep the historical four-release verdict separate from exploratory releases.
 VERSIONS = ("1.3.20", "2.11.1", "2.12.0", "2.19.0")
+SUPPORTED_VERSIONS = (*VERSIONS, "3.0.0")
 ORDER = ((1024, 1), (128, 1), (128, 2), (1024, 2))
 COLORS = {1024: "#d95f02", 128: "#1b75bc"}
 
@@ -61,7 +63,7 @@ def validate_record(item):
             errors.append(f"missing top-level field {key}")
     if d.get("schema") != 1:
         errors.append("schema is not 1")
-    if d.get("version") not in VERSIONS:
+    if d.get("version") not in SUPPORTED_VERSIONS:
         errors.append("unknown version")
     if not isinstance(d.get("source_sha"), str) or not d["source_sha"]:
         errors.append("source_sha is missing")
@@ -156,7 +158,7 @@ def validate_all(items, versions=VERSIONS):
     for item in items:
         d = item.get("data")
         version = d.get("version") if isinstance(d, dict) else None
-        if version in VERSIONS:
+        if version in SUPPORTED_VERSIONS:
             by_version.setdefault(version, []).append(item)
         item["errors"] = validate_record(item)
     for version in versions:
@@ -169,7 +171,7 @@ def validate_all(items, versions=VERSIONS):
     for item in items:
         d = item.get("data")
         version = d.get("version") if isinstance(d, dict) else None
-        if version not in VERSIONS:
+        if version not in SUPPORTED_VERSIONS:
             errors.extend(f"{item['path']}: {e}" for e in (item.get("errors") or ["unknown or malformed result"]))
     for v, item in chosen.items():
         errors.extend(f"{v}: {e}" for e in item["errors"])
@@ -386,7 +388,7 @@ def write_report(items, chosen, errors, output, versions=VERSIONS):
     used = {}
     for n, item in enumerate(items, 1):
         d = item.get("data")
-        version = d.get("version") if isinstance(d, dict) and d.get("version") in VERSIONS else f"invalid-{n}"
+        version = d.get("version") if isinstance(d, dict) and d.get("version") in SUPPORTED_VERSIONS else f"invalid-{n}"
         used[version] = used.get(version, 0) + 1
         suffix = "" if used[version] == 1 else f"-duplicate-{used[version]}"
         destination = raw / f"{version}{suffix}.json"
@@ -418,7 +420,7 @@ def run(input_dir, output_dir, version=None):
     items = read_results(Path(input_dir))
     if version:
         items = [item for item in items if not isinstance(item.get("data"), dict)
-                 or item["data"].get("version") not in VERSIONS
+                 or item["data"].get("version") not in SUPPORTED_VERSIONS
                  or item["data"]["version"] == version]
     chosen, errors = validate_all(items, versions)
     metrics = write_report(items, chosen, errors, Path(output_dir), versions)
@@ -466,7 +468,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", default="artifacts")
     parser.add_argument("--output", default="results")
-    parser.add_argument("--version", choices=VERSIONS,
+    parser.add_argument("--version", choices=SUPPORTED_VERSIONS,
                         help="report one version's pairs without a full-matrix verdict")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)

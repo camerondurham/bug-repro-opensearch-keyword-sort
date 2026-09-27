@@ -1,5 +1,7 @@
 # OpenSearch keyword-sort latency regression
 
+> **Temporary 3.0.0 trial branch:** [frozen scope and image identity](TRIAL-3X.md). The findings and charts below remain the original four-version run; the new trial is separate and does not publish to `main`.
+
 **Finding:** in the [retained GitHub Actions run](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36327603776), lowering `indices.query.bool.max_clause_count` from **1024 to 128** sped up the same sorted query by **2.75× on 2.12.0** and **2.36–2.65× on 2.19.0**, across both opposite-order pairs. Negative controls **1.3.20 and 2.11.1 stayed near 1×**. The query contains only one term filter.
 
 ![Measured client latency: baseline 1024 versus control 128](results/matrix.svg)

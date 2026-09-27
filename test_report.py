@@ -83,6 +83,23 @@ class ReportTests(unittest.TestCase):
         # Default full-matrix reporting still rejects an incomplete Actions download.
         self.assertEqual(self.run_cli("--input", str(source), "--output", str(output))[0], 1)
 
+    def test_exploratory_3x_is_supported_without_changing_matrix_verdict(self):
+        import repro
+        self.assertEqual(set(report.SUPPORTED_VERSIONS), set(repro.VERSIONS))
+        self.assertEqual(set(repro.IMAGE_DIGESTS), set(repro.VERSIONS))
+        self.assertEqual(repro.VERSIONS["3.0.0"], "10.1.0")
+        source = self.root / "result.json"
+        source.write_text(json.dumps(report.fake_result("3.0.0")))
+        output = self.root / "trial"
+        code, text = self.run_cli("--input", str(source), "--output", str(output), "--version", "3.0.0")
+        self.assertEqual(code, 0)
+        self.assertIn("NOT_ASSESSED", text)
+        self.assertNotIn("REPRODUCED", text)
+        metrics = json.loads((output / "metrics.json").read_text())
+        self.assertEqual(metrics["versions"], ["3.0.0"])
+        self.assertEqual(len(metrics["pair_ratios"]["3.0.0"]), 2)
+        self.assertEqual(report.VERSIONS, ("1.3.20", "2.11.1", "2.12.0", "2.19.0"))
+
     def test_nondefault_runner_parameters_and_zero_took(self):
         record = report.fake_result("2.19.0")
         record["parameters"].update(docs=1000, shards=1, heap="1g", samples=30,
