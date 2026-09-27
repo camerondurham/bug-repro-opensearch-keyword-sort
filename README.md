@@ -1,18 +1,25 @@
 # OpenSearch keyword-sort latency regression
 
-**Finding:** in the [retained GitHub Actions run](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36327603776), lowering `indices.query.bool.max_clause_count` from **1024 to 128** sped up the same sorted query by **2.75× on 2.12.0** and **2.36–2.65× on 2.19.0**, across both opposite-order pairs. Negative controls **1.3.20 and 2.11.1 stayed near 1×**. The query contains only one term filter.
+**Finding:** in the [five-version GitHub Actions run](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36336273811), lowering `indices.query.bool.max_clause_count` from **1024 to 128** sped up the same sorted query by **2.77–3.17× on 2.12.0**, **2.34–2.52× on 2.19.0**, and **2.05–2.06× on 3.8.0**, across both opposite-order pairs. Negative controls **1.3.20 and 2.11.1 stayed near 1×**. The query contains only one term filter.
 
-The regular matrix now includes **[OpenSearch 3.8.0](https://github.com/opensearch-project/OpenSearch/releases/tag/3.8.0)**, the latest stable release at selection (published August 5, 2026). It is pinned exactly, not to a moving `latest` tag. **3.8.0 has not yet been measured here**; the charts below retain the original four-version run until a fresh matrix run is authorized and completes.
+**[OpenSearch 3.8.0](https://github.com/opensearch-project/OpenSearch/releases/tag/3.8.0)** was the latest stable release at selection (published August 5, 2026), pinned exactly rather than to a moving `latest` tag. Its client cell medians aggregate to **77.83 → 37.92 ms**; server `took` corroborates at **72.88 → 32.88 ms**. Both charts below include all five versions from the same source/run: **20 fresh JVMs, 4,000 measured requests**, all runner checks passed and teardown recorded clean.
 
 ![Measured client latency: baseline 1024 versus control 128](results/matrix.svg)
 
 **Recompute the published numbers and charts without Docker** (Python 3.10+, standard library only):
 
 ```bash
-python3 report.py --input results/raw --historical-matrix --output local-report
+python3 report.py --input results/raw --output local-report
 ```
 
 Open `local-report/report.html`. [Client and server summaries](results/summary.md) · [every measured request](results/requests.svg) · [committed raw records](results/raw).
+
+<details>
+<summary>All 4,000 measured requests, including 3.8.0</summary>
+
+![Every measured request across all five releases](results/requests.svg)
+
+</details>
 
 **Limitations:** this reduced synthetic fixture sorts by **keyword `item_key` + long `market_id`**, repeating the first 250-hit page with **no pagination**. It is not a full traversal or reproduction of production write/cleanup “shark-fin” latency. Cross-release comparisons include different bundled JDKs/plugins and hosted VMs; within-release setting contrasts are stronger evidence. Two fresh pairs are descriptive, not population confidence. Lowering the clause ceiling can reject other Boolean/expanded queries—**not blanket production advice**. This is not an isolated binary revert proving a single causal commit.
 
@@ -30,7 +37,7 @@ The runner prints **both paired client and server `took` ratios** and retains `r
 python3 report.py --input artifacts/3.8.0 --version 3.8.0 --output local-report
 ```
 
-The reporter also accepts one JSON file, an Actions artifact tree, or `results/raw/`. Counts and labels follow the runner's recorded `--samples`, heap and fixture parameters; nondefault settings are not relabeled as the published experiment. Default reporting requires all five releases from the same measured source/run; do not splice a new 3.x run into old matrix evidence. `--historical-matrix` explicitly replays the original four-release dataset (omit it for a new five-release dataset). For in-place historical regeneration, use `--input results/raw --historical-matrix --output results`; raw inputs are preserved byte-for-byte.
+The reporter also accepts one JSON file, an Actions artifact tree, or `results/raw/`. Counts and labels follow the runner's recorded `--samples`, heap and fixture parameters; nondefault settings are not relabeled as the published experiment. Default reporting requires all five releases from the same measured source/run; do not splice a new 3.x run into old matrix evidence. For in-place regeneration, use `--input results/raw --output results`; raw inputs are preserved byte-for-byte. `--historical-matrix` is only for replaying the [archived original four-release dataset](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/tree/38f9db311c3262ea2c532bda02ef5eacaf34b575/results), not the current five-release evidence.
 
 ## Exact reduced workload
 
@@ -54,7 +61,7 @@ The reporter also accepts one JSON file, an Actions artifact tree, or `results/r
 | 2.11.1 | 9.7.0 | Negative control before the measured boundary |
 | 2.12.0 | 9.9.2 | Affected release after the boundary |
 | 2.19.0 | 9.12.1 | Affected later release |
-| 3.8.0 | 10.5.0 | Latest stable 3.x; effect not presumed |
+| 3.8.0 | 10.5.0 | Latest stable 3.x; observed 2.05–2.06× setting effect |
 
 3.8.0 identity: official release commit [`e5a3c569`](https://github.com/opensearch-project/OpenSearch/tree/e5a3c5691be87af6c12dbe3e158c59c04ee72973), [Lucene dependency](https://github.com/opensearch-project/OpenSearch/blob/e5a3c5691be87af6c12dbe3e158c59c04ee72973/gradle/libs.versions.toml#L3), [clause-ceiling setting](https://github.com/opensearch-project/OpenSearch/blob/e5a3c5691be87af6c12dbe3e158c59c04ee72973/server/src/main/java/org/opensearch/search/SearchService.java#L398). Official linux/amd64 image manifest `sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0` is fixed in `repro.py`; registry manifest bytes were independently rehashed at selection.
 
