@@ -1,0 +1,395 @@
+#!/usr/bin/env python3
+"""Small, fail-closed reporter for the keyword-sort reproduction."""
+from __future__ import annotations
+
+import argparse
+import html
+import json
+import math
+import shutil
+import statistics
+import tempfile
+from pathlib import Path
+
+VERSIONS = ("1.3.20", "2.11.1", "2.12.0", "2.19.0")
+ORDER = ((1024, 1), (128, 1), (128, 2), (1024, 2))
+COLORS = {1024: "#d95f02", 128: "#1b75bc"}
+
+
+def finite_number(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def med(values):
+    return statistics.median(values)
+
+
+def esc(value):
+    return html.escape(str(value), quote=True)
+
+
+def svg_text(x, y, text, size=12, anchor="start", fill="#222", weight="normal"):
+    return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="sans-serif" '
+            f'font-size="{size}px" text-anchor="{anchor}" fill="{fill}" '
+            f'font-weight="{weight}">{esc(text)}</text>')
+
+
+def read_results(root):
+    found = []
+    for path in sorted(root.rglob("result.json")):
+        item = {"path": path, "data": None, "error": None}
+        try:
+            item["data"] = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:  # Keep malformed evidence visible in the report.
+            item["error"] = f"cannot parse JSON: {exc}"
+        found.append(item)
+    return found
+
+
+def validate_record(item):
+    d, errors = item.get("data"), []
+    if item.get("error"):
+        return [item["error"]]
+    if not isinstance(d, dict):
+        return ["top level is not an object"]
+    for key in ("schema", "version", "source_sha", "run_url", "parameters", "query", "status", "error", "cells"):
+        if key not in d:
+            errors.append(f"missing top-level field {key}")
+    if d.get("schema") != 1:
+        errors.append("schema is not 1")
+    if d.get("version") not in VERSIONS:
+        errors.append("unknown version")
+    if not isinstance(d.get("source_sha"), str) or not d["source_sha"]:
+        errors.append("source_sha is missing")
+    if not isinstance(d.get("run_url"), str) or not d["run_url"]:
+        errors.append("run_url is missing")
+    if d.get("status") != "valid":
+        errors.append("status is not valid")
+    if d.get("error") is not None and not isinstance(d.get("error"), str):
+        errors.append("error is neither null nor a string")
+    if d.get("status") == "valid" and d.get("error") is not None:
+        errors.append("valid result has a non-null error")
+    p = d.get("parameters")
+    if not isinstance(p, dict):
+        errors.append("parameters is not an object")
+    else:
+        for key, expected in (("docs", 198000), ("shards", 18), ("heap", "2g"), ("samples", 100)):
+            if p.get(key) != expected:
+                errors.append(f"parameters.{key} is not {expected!r}")
+    if not isinstance(d.get("query"), dict):
+        errors.append("query is not an object")
+    cells = d.get("cells")
+    if not isinstance(cells, list) or len(cells) != 4:
+        errors.append("cells does not contain exactly four entries")
+        return errors
+    for i, (cell, expected) in enumerate(zip(cells, ORDER)):
+        if not isinstance(cell, dict):
+            errors.append(f"cell {i} is not an object")
+            continue
+        ceiling, replicate = expected
+        if cell.get("ceiling") != ceiling or cell.get("replicate") != replicate:
+            errors.append(f"cell {i} is not {ceiling}/{replicate} in the required order")
+        blocks, samples, took = cell.get("block_medians"), cell.get("samples"), cell.get("took_ms")
+        if not isinstance(blocks, list) or len(blocks) != 2:
+            errors.append(f"cell {i} does not have two block medians")
+        if not isinstance(samples, list) or len(samples) != 200:
+            errors.append(f"cell {i} does not have 200 samples")
+        if not isinstance(took, list) or len(took) != 200:
+            errors.append(f"cell {i} does not have 200 took_ms values")
+        if isinstance(blocks, list):
+            if not all(finite_number(x) and x > 0 for x in blocks):
+                errors.append(f"cell {i} has invalid block medians")
+        if isinstance(samples, list):
+            if not all(finite_number(x) and x > 0 for x in samples):
+                errors.append(f"cell {i} has invalid samples")
+        if isinstance(took, list):
+            if not all(isinstance(x, int) and not isinstance(x, bool) and x >= 0 for x in took):
+                errors.append(f"cell {i} has invalid took_ms values")
+        if (isinstance(blocks, list) and len(blocks) == 2 and isinstance(samples, list)
+                and len(samples) == 200 and all(finite_number(x) and x > 0 for x in blocks)
+                and all(finite_number(x) and x > 0 for x in samples)):
+            actual = [med(samples[:100]), med(samples[100:])]
+            if any(not math.isclose(a, b, rel_tol=1e-7, abs_tol=1e-7) for a, b in zip(blocks, actual)):
+                errors.append(f"cell {i} block medians do not match samples")
+        if not isinstance(cell.get("result_hash"), str) or not cell["result_hash"]:
+            errors.append(f"cell {i} has no result_hash")
+        identity = cell.get("identity")
+        if not isinstance(identity, dict):
+            errors.append(f"cell {i} has no identity")
+        else:
+            iv = identity.get("version")
+            if not isinstance(iv, dict) or not isinstance(iv.get("number"), str) or not isinstance(iv.get("lucene_version"), str):
+                errors.append(f"cell {i} has incomplete version identity")
+            elif iv["number"] != d.get("version"):
+                errors.append(f"cell {i} identity version does not match returned version")
+            for key in ("jvm", "image"):
+                if not isinstance(identity.get(key), dict):
+                    errors.append(f"cell {i} identity.{key} is not an object")
+        for key in ("layout_before", "layout_after"):
+            if not isinstance(cell.get(key), dict):
+                errors.append(f"cell {i} has no {key}")
+        if cell.get("cleanup") != "clean":
+            errors.append(f"cell {i} cleanup is not clean")
+    return errors
+
+
+def validate_all(items):
+    errors = []
+    by_version = {}
+    for item in items:
+        d = item.get("data")
+        version = d.get("version") if isinstance(d, dict) else None
+        if version in VERSIONS:
+            by_version.setdefault(version, []).append(item)
+        item["errors"] = validate_record(item)
+    for version in VERSIONS:
+        if len(by_version.get(version, [])) != 1:
+            errors.append(f"expected exactly one result for {version}, found {len(by_version.get(version, []))}")
+    for version, group in by_version.items():
+        if len(group) > 1:
+            errors.append(f"duplicate result for {version}")
+    chosen = {v: by_version[v][0] for v in VERSIONS if len(by_version.get(v, [])) == 1}
+    for item in items:
+        d = item.get("data")
+        version = d.get("version") if isinstance(d, dict) else None
+        if version not in VERSIONS:
+            errors.extend(f"{item['path']}: {e}" for e in (item.get("errors") or ["unknown or malformed result"]))
+    for v, item in chosen.items():
+        errors.extend(f"{v}: {e}" for e in item["errors"])
+    if len(chosen) == len(VERSIONS) and all(not chosen[v]["errors"] for v in VERSIONS):
+        first = chosen[VERSIONS[0]]["data"]
+        for v in VERSIONS[1:]:
+            d = chosen[v]["data"]
+            for key in ("parameters", "query", "source_sha", "run_url"):
+                if d.get(key) != first.get(key):
+                    errors.append(f"{key} differs between releases")
+        hashes = {c["result_hash"] for v in VERSIONS for c in chosen[v]["data"]["cells"]}
+        if len(hashes) != 1:
+            errors.append("result_hash differs across cells or releases")
+    return chosen, errors
+
+
+def pair_info(d):
+    cells = d["cells"]
+    pairs = []
+    for default, control in ((cells[0], cells[1]), (cells[3], cells[2])):
+        a, b = med(default["block_medians"]), med(control["block_medians"])
+        pairs.append({"default": a, "ceiling_128": b, "ratio": a / b})
+    return pairs
+
+
+def render_matrix(chosen):
+    width, height, left, right, top, bottom = 1200, 560, 90, 1160, 70, 475
+    values = []
+    for v in VERSIONS:
+        d = chosen.get(v, {}).get("data") if isinstance(chosen.get(v), dict) else None
+        if d and not chosen[v].get("errors"):
+            values.extend(med(c["block_medians"]) for c in d["cells"])
+    ymax = max(values or [1]) * 1.25
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">',
+             '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 28, "Keyword sort latency by version and clause ceiling", 18, "middle", weight="bold"),
+             svg_text(600, 49, "Bars are pair medians; labels show both raw replicate medians (no population confidence interval)", 11, "middle", fill="#555")]
+    for tick in range(5):
+        y = bottom - (bottom - top) * tick / 4
+        value = ymax * tick / 4
+        parts += [f'<line x1="{left}" y1="{y:.1f}" x2="{right}" y2="{y:.1f}" stroke="#ddd"/>', svg_text(left - 10, y + 4, f"{value:.1f}", 11, "end")]
+    parts += [f'<line x1="{left}" y1="{top}" x2="{left}" y2="{bottom}" stroke="#333"/>',
+              f'<line x1="{left}" y1="{bottom}" x2="{right}" y2="{bottom}" stroke="#333"/>',
+              svg_text(25, (top + bottom) / 2, "ms", 12, "middle")]
+    group_w = (right - left) / 4
+    for i, version in enumerate(VERSIONS):
+        d = chosen.get(version, {}).get("data") if isinstance(chosen.get(version), dict) else None
+        gx = left + i * group_w
+        parts.append(svg_text(gx + group_w / 2, bottom + 28, version, 13, "middle", weight="bold"))
+        for j, ceiling in enumerate((1024, 128)):
+            cell_indexes = (0, 3) if ceiling == 1024 else (1, 2)
+            x = gx + group_w * .22 + j * group_w * .28
+            if not d or chosen[version].get("errors"):
+                continue
+            vals = [med(d["cells"][n]["block_medians"]) for n in cell_indexes]
+            value = med(vals)
+            bar_h = (bottom - top) * value / ymax
+            parts += [f'<rect x="{x:.1f}" y="{bottom-bar_h:.1f}" width="55" height="{bar_h:.1f}" fill="{COLORS[ceiling]}"/>',
+                      svg_text(x + 27.5, bottom - bar_h - 9, f"{vals[0]:.1f} / {vals[1]:.1f}", 10, "middle"),
+                      svg_text(x + 27.5, bottom + 14, str(ceiling), 10, "middle")]
+    parts += [f'<rect x="{right-220}" y="{top-38}" width="14" height="14" fill="{COLORS[1024]}"/>', svg_text(right-200, top-26, "ceiling 1024", 11),
+              f'<rect x="{right-105}" y="{top-38}" width="14" height="14" fill="{COLORS[128]}"/>', svg_text(right-85, top-26, "ceiling 128", 11), '</svg>']
+    return "\n".join(parts)
+
+
+def render_requests(chosen):
+    width, panel_h, height = 1200, 275, 4 * 275 + 45
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">',
+             '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 25, "All request samples by release", 18, "middle", weight="bold"),
+             svg_text(600, 45, "Each labeled JVM segment is a fresh container; dashed lines mark the two 100-sample blocks", 11, "middle", fill="#555")]
+    plot_left, plot_right = 90, 1160
+    all_points = []
+    for version in VERSIONS:
+        item = chosen.get(version)
+        if item and isinstance(item.get("data"), dict):
+            for cell in item["data"].get("cells", []):
+                all_points.extend(x for x in cell.get("samples", []) if finite_number(x) and x > 0)
+    ymax = max(all_points or [1]) * 1.12
+    for row, version in enumerate(VERSIONS):
+        y0, top, bottom = row * panel_h + 100, row * panel_h + 100, row * panel_h + 273
+        item = chosen.get(version)
+        d = item.get("data") if item else None
+        parts += [svg_text(90, y0 - 20, f"{version} request samples", 14, weight="bold"),
+                  svg_text(1160, y0 - 20, "N=800" if d and not item.get("errors") else "incomplete / invalid", 11, "end", fill="#a00" if not d or item.get("errors") else "#555"),
+                  f'<line x1="{plot_left}" y1="{bottom}" x2="{plot_right}" y2="{bottom}" stroke="#333"/>',
+                  f'<line x1="{plot_left}" y1="{top}" x2="{plot_left}" y2="{bottom}" stroke="#333"/>',
+                  svg_text(20, (top + bottom) / 2, "ms", 11, "middle")]
+        for tick in (0, .5, 1):
+            y = bottom - (bottom - top) * tick
+            parts += [f'<line x1="{plot_left}" y1="{y:.1f}" x2="{plot_right}" y2="{y:.1f}" stroke="#eee"/>', svg_text(plot_left - 8, y + 4, f"{ymax*tick:.0f}", 9, "end")]
+        if not d:
+            parts.append(svg_text(600, (top + bottom) / 2, "no result.json for this release", 13, "middle", fill="#a00"))
+            continue
+        for cell_no, cell in enumerate(d.get("cells", [])):
+            x0 = plot_left + (plot_right - plot_left) * cell_no / 4
+            x1 = plot_left + (plot_right - plot_left) * (cell_no + 1) / 4
+            parts += [f'<line x1="{x0:.1f}" y1="{top}" x2="{x0:.1f}" y2="{bottom}" stroke="#777" stroke-width="2"/>',
+                      svg_text((x0+x1)/2, bottom + 18, f"JVM {cell_no+1} ({cell.get('ceiling', '?')})", 9, "middle")]
+            mid = (x0 + x1) / 2
+            parts.append(f'<line x1="{mid:.1f}" y1="{top}" x2="{mid:.1f}" y2="{bottom}" stroke="#999" stroke-dasharray="3,3"/>')
+            samples = cell.get("samples", [])
+            pts = []
+            for n, value in enumerate(samples):
+                if not finite_number(value) or value <= 0:
+                    continue
+                x = x0 + (n + .5) * (x1 - x0) / 200
+                y = bottom - (bottom - top) * value / ymax
+                pts.append((x, y))
+                parts.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="1.7" fill="{COLORS.get(cell.get("ceiling"), "#777")}"/>')
+            if pts:
+                parts.append('<polyline fill="none" stroke="%s" stroke-width="0.7" opacity=".35" points="%s"/>' %
+                             (COLORS.get(cell.get("ceiling"), "#777"), " ".join(f"{x:.2f},{y:.2f}" for x, y in pts)))
+    parts += [f'<rect x="{plot_right-480}" y="{height-25}" width="12" height="12" fill="{COLORS[1024]}"/>', svg_text(plot_right-462, height-15, "ceiling 1024", 10),
+              f'<rect x="{plot_right-375}" y="{height-25}" width="12" height="12" fill="{COLORS[128]}"/>', svg_text(plot_right-357, height-15, "ceiling 128", 10),
+              f'<line x1="{plot_right-285}" y1="{height-19}" x2="{plot_right-260}" y2="{height-19}" stroke="#777" stroke-width="2"/>', svg_text(plot_right-252, height-15, "fresh JVM boundary", 10),
+              f'<line x1="{plot_right-125}" y1="{height-19}" x2="{plot_right-100}" y2="{height-19}" stroke="#999" stroke-dasharray="3,3"/>', svg_text(plot_right-92, height-15, "block boundary", 10), '</svg>']
+    return "\n".join(parts)
+
+
+def summary_and_metrics(chosen, errors):
+    valid = not errors
+    ratios = {}
+    for version in VERSIONS:
+        item = chosen.get(version)
+        if item and not item.get("errors"):
+            ratios[version] = pair_info(item["data"])
+    reproduced = valid and all(r["ratio"] >= 1.25 for v in ("2.12.0", "2.19.0") for r in ratios[v]) and all(
+        0.8 <= r["ratio"] <= 1.25 for v in ("1.3.20", "2.11.1") for r in ratios[v])
+    outcome = "REPRODUCED" if reproduced else ("NOT_REPRODUCED" if valid else "INVALID_MEASUREMENT")
+    lines = ["# Keyword sort latency report", "", f"**Measurement validity:** {'VALID' if valid else 'INVALID'}", f"**Performance outcome:** **{outcome}**", "", "## Version summary", "", "| Version | 1024 pair median (ms) | 128 pair median (ms) | Pair ratios (1024 / 128) |", "|---|---:|---:|---|"]
+    for version in VERSIONS:
+        rs = ratios.get(version)
+        if rs:
+            dvals = [r["default"] for r in rs]
+            cvals = [r["ceiling_128"] for r in rs]
+            ratio_text = ", ".join(f"{r['ratio']:.3f}" for r in rs)
+            lines.append(f"| {version} | {med(dvals):.3f} ({dvals[0]:.3f}, {dvals[1]:.3f}) | {med(cvals):.3f} ({cvals[0]:.3f}, {cvals[1]:.3f}) | {ratio_text} |")
+        else:
+            lines.append(f"| {version} | unavailable | unavailable | unavailable |")
+    lines += ["", "## Provenance", ""]
+    first = next((chosen[v]["data"] for v in VERSIONS if v in chosen and isinstance(chosen[v].get("data"), dict)), None)
+    lines += [f"- Source SHA: `{first.get('source_sha') if first else 'unavailable'}`", f"- Run: {first.get('run_url') if first else 'unavailable'}"]
+    if first and first.get("run_url", "").startswith("https://github.com/"):
+        repo_url = first["run_url"].split("/actions/runs/")[0]
+        lines += [f"- [Exact benchmark source]({repo_url}/tree/{first['source_sha']})",
+                  f"- [Published charts and raw data]({repo_url}/tree/main/results)"]
+    lines += ["", "[Matrix chart](matrix.svg) · [Every request](requests.svg) · [Offline HTML report](report.html)",
+              "", "Reproduction rule: both affected-release pairs ≥1.25×, both negative-control pairs within [0.80, 1.25]. Validity and this descriptive performance rule are separate.",
+              "", "## Validation findings", ""]
+    lines += [f"- {e}" for e in errors] or ["- All four releases, cells, identities, hashes, cleanup markers, and cross-release invariants validated."]
+    lines += ["", "## Caveats", "", "- Bundled JDK versions are confounded across releases.", "- This is a 2 CPU / 2 GiB heap CI measurement.", "- It repeats one query on the first page; it is not full traversal or a production shark fin.", "- Samples are not independent replicates; fresh JVMs and block boundaries are shown separately.", "- The 128 setting is a coupled boolean ceiling, not an isolated production control.", ""]
+    metrics = {"schema": 1, "versions": list(VERSIONS), "valid": valid, "outcome": outcome, "errors": errors, "pair_ratios": ratios}
+    return "\n".join(lines), metrics
+
+
+def write_report(items, chosen, errors, output):
+    output.mkdir(parents=True, exist_ok=True)
+    raw = output / "raw"
+    raw.mkdir(exist_ok=True)
+    used = {}
+    for n, item in enumerate(items, 1):
+        d = item.get("data")
+        version = d.get("version") if isinstance(d, dict) and d.get("version") in VERSIONS else f"invalid-{n}"
+        used[version] = used.get(version, 0) + 1
+        suffix = "" if used[version] == 1 else f"-duplicate-{used[version]}"
+        shutil.copyfile(item["path"], raw / f"{version}{suffix}.json")
+    matrix = render_matrix(chosen)
+    requests = render_requests(chosen)
+    summary, metrics = summary_and_metrics(chosen, errors)
+    (output / "matrix.svg").write_text(matrix, encoding="utf-8")
+    (output / "requests.svg").write_text(requests, encoding="utf-8")
+    (output / "summary.md").write_text(summary, encoding="utf-8")
+    (output / "metrics.json").write_text(json.dumps(metrics, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    rows = []
+    for v in VERSIONS:
+        item = chosen.get(v)
+        state = "valid" if item and not item.get("errors") else "invalid/missing"
+        rs = metrics["pair_ratios"].get(v, [])
+        ratio_text = ", ".join(f"{r['ratio']:.3f}" for r in rs) or "unavailable"
+        rows.append(f"<tr><td>{esc(v)}</td><td>{esc(state)}</td><td>{esc(ratio_text)}</td></tr>")
+    document = """<!doctype html><meta charset="utf-8"><title>Keyword sort report</title>
+<style>body{font:14px sans-serif;max-width:1200px;margin:2em auto}svg{width:100%%;height:auto}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:.35em .7em}</style>
+<h1>Keyword sort latency report</h1><table><tr><th>Version</th><th>Measurement</th><th>Pair ratios (1024 / 128)</th></tr>%s</table><h2>Latency matrix</h2>%s<h2>Requests</h2>%s<pre>%s</pre>""" % ("".join(rows), matrix, requests, esc(summary))
+    (output / "report.html").write_text(document, encoding="utf-8")
+    return metrics
+
+
+def run(input_dir, output_dir):
+    items = read_results(Path(input_dir))
+    chosen, errors = validate_all(items)
+    write_report(items, chosen, errors, Path(output_dir))
+    return 0 if not errors else 1
+
+
+def fake_result(version, controls=False):
+    medians = ([90, 90], [100, 100], [100, 100], [110, 110]) if controls else ([100, 100], [70, 70], [72, 72], [108, 108])
+    cells = []
+    for (ceiling, replicate), pair in zip(ORDER, medians):
+        samples = [float(pair[0])] * 100 + [float(pair[1])] * 100
+        cells.append({"ceiling": ceiling, "replicate": replicate, "block_medians": pair, "samples": samples, "took_ms": [int(pair[0])] * 100 + [int(pair[1])] * 100,
+                      "result_hash": "same-result", "identity": {"version": {"number": version, "lucene_version": "9.12.1"}, "jvm": {"version": "21"}, "image": {"digest": "sha256:x"}},
+                      "layout_before": {}, "layout_after": {}, "cleanup": "clean"})
+    return {"schema": 1, "version": version, "source_sha": "source", "run_url": "https://example.invalid/run", "parameters": {"docs": 198000, "shards": 18, "heap": "2g", "samples": 100}, "query": {"query": {"match_all": {}}}, "status": "valid", "error": None, "cells": cells}
+
+
+def self_test():
+    with tempfile.TemporaryDirectory(prefix="keyword-sort-report-") as td:
+        root = Path(td)
+        good, out = root / "good", root / "good-results"
+        good.mkdir()
+        for v in VERSIONS:
+            (good / v).mkdir()
+            (good / v / "result.json").write_text(json.dumps(fake_result(v, v in ("1.3.20", "2.11.1"))), encoding="utf-8")
+        assert run(good, out) == 0 and (out / "matrix.svg").exists() and (out / "requests.svg").exists()
+        missing = root / "missing"
+        shutil.copytree(good, missing)
+        (missing / "2.19.0" / "result.json").unlink()
+        assert run(missing, root / "missing-results") != 0
+        malformed = root / "malformed"
+        shutil.copytree(good, malformed)
+        bad = json.loads((malformed / "2.12.0" / "result.json").read_text())
+        bad["cells"][0]["samples"] = [1.0]
+        (malformed / "2.12.0" / "result.json").write_text(json.dumps(bad), encoding="utf-8")
+        assert run(malformed, root / "malformed-results") != 0
+    print("self-test: PASS (positive, missing-version, and malformed-sample fixtures used only in temporary directories; no repository results written)")
+    return 0
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--input", default="artifacts")
+    parser.add_argument("--output", default="results")
+    parser.add_argument("--self-test", action="store_true")
+    args = parser.parse_args(argv)
+    if args.self_test:
+        return self_test()
+    return run(args.input, args.output)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
