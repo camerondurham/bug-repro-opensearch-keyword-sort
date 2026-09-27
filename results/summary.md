@@ -1,8 +1,10 @@
 # Keyword sort latency report
 
-**Runner validation (recorded):** 1.3.20=valid, 2.11.1=valid, 2.12.0=valid, 2.19.0=valid
+**Runner validation (recorded):** 1.3.20=valid, 2.11.1=valid, 2.12.0=valid, 2.19.0=valid, 3.8.0=valid
 **Reporter evidence checks / recomputation:** PASS
-**Full-matrix performance outcome:** **REPRODUCED**
+**Historical-boundary performance outcome:** **REPRODUCED**
+
+Reported releases: 1.3.20, 2.11.1, 2.12.0, 2.19.0, 3.8.0.
 
 Cell values are medians of two block medians, recomputed from the retained samples. Tables show the median across pairs, then each pair's cell value in parentheses. Ratios are 1024 / 128 in the two opposite orders.
 
@@ -10,32 +12,34 @@ Cell values are medians of two block medians, recomputed from the retained sampl
 
 | Version | 1024 pair median (ms) | 128 pair median (ms) | Pair ratios (1024 / 128) |
 |---|---:|---:|---|
-| 1.3.20 | 27.749 (27.604, 27.894) | 27.303 (27.508, 27.099) | 1.003×, 1.029× |
-| 2.11.1 | 39.122 (39.793, 38.452) | 39.614 (38.951, 40.277) | 1.022×, 0.955× |
-| 2.12.0 | 104.609 (105.417, 103.802) | 38.104 (38.395, 37.812) | 2.746×, 2.745× |
-| 2.19.0 | 74.260 (78.825, 69.696) | 29.598 (29.699, 29.497) | 2.654×, 2.363× |
+| 1.3.20 | 31.197 (32.295, 30.099) | 30.554 (29.902, 31.206) | 1.080×, 0.965× |
+| 2.11.1 | 46.297 (46.176, 46.419) | 47.051 (46.154, 47.947) | 1.000×, 0.968× |
+| 2.12.0 | 73.552 (71.095, 76.009) | 24.821 (25.644, 23.997) | 2.772×, 3.167× |
+| 2.19.0 | 96.907 (101.784, 92.029) | 39.873 (40.462, 39.285) | 2.516×, 2.343× |
+| 3.8.0 | 77.826 (78.299, 77.352) | 37.918 (38.259, 37.577) | 2.047×, 2.059× |
 
 ## Server `took`
 
 | Version | 1024 pair median (ms) | 128 pair median (ms) | Pair ratios (1024 / 128) |
 |---|---:|---:|---|
-| 1.3.20 | 22.750 (22.500, 23.000) | 22.250 (22.500, 22.000) | 1.000×, 1.045× |
-| 2.11.1 | 34.750 (35.500, 34.000) | 35.500 (35.000, 36.000) | 1.014×, 0.944× |
-| 2.12.0 | 99.625 (100.000, 99.250) | 32.500 (32.500, 32.500) | 3.077×, 3.054× |
-| 2.19.0 | 69.875 (74.500, 65.250) | 24.750 (25.000, 24.500) | 2.980×, 2.663× |
+| 1.3.20 | 26.750 (27.500, 26.000) | 26.000 (25.500, 26.500) | 1.078×, 0.981× |
+| 2.11.1 | 41.250 (41.000, 41.500) | 42.250 (41.250, 43.250) | 0.994×, 0.960× |
+| 2.12.0 | 70.625 (68.250, 73.000) | 21.375 (22.250, 20.500) | 3.067×, 3.561× |
+| 2.19.0 | 92.375 (97.500, 87.250) | 34.625 (35.250, 34.000) | 2.766×, 2.566× |
+| 3.8.0 | 72.875 (73.250, 72.500) | 32.875 (33.000, 32.750) | 2.220×, 2.214× |
 
 Client wall time includes HTTP/JSON decoding, excluding oracle checking. Server `took` is the returned integer-millisecond server duration, not CPU time; it excludes client/network overhead. A zero control median gives an undefined (`n/a`) ratio.
 
 ## Provenance
 
-- Source SHA: `4ad6043660e5ec4b4208735903fb83240067b8fc`
-- Run: https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36327603776
-- [Exact benchmark source](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/tree/4ad6043660e5ec4b4208735903fb83240067b8fc)
+- Source SHA: `3ed6bdcb3067af8f0a6dda4fd695473f07dac94f`
+- Run: https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36336273811
+- [Exact benchmark source](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/tree/3ed6bdcb3067af8f0a6dda4fd695473f07dac94f)
 - [Published charts and raw data](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/tree/main/results)
 
 [Matrix chart](matrix.svg) · [Every request](requests.svg) · [Offline HTML report](report.html)
 
-Reproduction rule: both affected-release pairs ≥1.25×, both negative-control pairs within [0.80, 1.25]. Validity and this descriptive performance rule are separate.
+Historical-boundary rule: both 2.12.0/2.19.0 pairs ≥1.25×, both 1.3.20/2.11.1 pairs within [0.80, 1.25]. 3.8.0 is measured descriptively, not assumed affected or used to decide that historical verdict. Default matrix validity requires all five releases; explicit historical replay requires the original four.
 
 ## Runner validation versus reporter recomputation
 
