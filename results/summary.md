@@ -6,11 +6,11 @@
 
 Reported releases: 1.3.20, 2.11.1, 2.12.0, 2.19.0, 3.8.0.
 
-Cell values are medians of two block medians, recomputed from the retained samples. Tables show the median across pairs, then each pair's cell value in parentheses. Ratios are 1024 / 128 in the two opposite orders.
+Each block value is a median of its retained samples. A container result is the median of its two block medians. Tables show the median of the two container results for each setting, followed by both results in parentheses. Ratios are 1024 / 128 in the two opposite orders.
 
 ## Client wall latency
 
-| Version | 1024 pair median (ms) | 128 pair median (ms) | Pair ratios (1024 / 128) |
+| Version | Default limit 1024 (ms) | Lowered limit 128 (ms) | Pair ratios (1024 / 128) |
 |---|---:|---:|---|
 | 1.3.20 | 31.197 (32.295, 30.099) | 30.554 (29.902, 31.206) | 1.080×, 0.965× |
 | 2.11.1 | 46.297 (46.176, 46.419) | 47.051 (46.154, 47.947) | 1.000×, 0.968× |
@@ -20,7 +20,7 @@ Cell values are medians of two block medians, recomputed from the retained sampl
 
 ## Server `took`
 
-| Version | 1024 pair median (ms) | 128 pair median (ms) | Pair ratios (1024 / 128) |
+| Version | Default limit 1024 (ms) | Lowered limit 128 (ms) | Pair ratios (1024 / 128) |
 |---|---:|---:|---|
 | 1.3.20 | 26.750 (27.500, 26.000) | 26.000 (25.500, 26.500) | 1.078×, 0.981× |
 | 2.11.1 | 41.250 (41.000, 41.500) | 42.250 (41.250, 43.250) | 0.994×, 0.960× |

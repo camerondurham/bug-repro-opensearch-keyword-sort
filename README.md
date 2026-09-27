@@ -1,63 +1,81 @@
 # OpenSearch keyword-sort latency regression
 
-**Finding:** in the [five-version GitHub Actions run](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36336273811), lowering `indices.query.bool.max_clause_count` from 1024 to 128 sped up the same sorted query by 2.77-3.17x on 2.12.0, 2.34-2.52x on 2.19.0, and 2.05-2.06x on 3.8.0, across both opposite-order pairs. Negative controls 1.3.20 and 2.11.1 stayed near 1x. The query contains only one term filter.
+**Lowering the Boolean clause limit made keyword-sorted searches about 2–3× faster on three tested OpenSearch releases.**
 
-**[OpenSearch 3.8.0](https://github.com/opensearch-project/OpenSearch/releases/tag/3.8.0)**, the latest stable release at selection (published August 5, 2026), is pinned by image digest in `repro.py`. Its client cell medians fall from 77.83 to 37.92 ms; server `took` corroborates at 72.88 to 32.88 ms. Both charts cover all five versions from the same source/run: 20 fresh JVMs, 4,000 measured requests, all runner checks passed and teardown recorded clean.
+On this reproduction workload, changing `indices.query.bool.max_clause_count` from its default of 1024 to 128 reduced latency on OpenSearch 2.12.0, 2.19.0, and 3.8.0. The same change had little effect on 1.3.20 and 2.11.1.
 
-![Measured client latency: baseline 1024 versus control 128](results/matrix.svg)
+The query contains only one term filter. The setting matters because Lucene also uses it inside its keyword-sort implementation.
 
-Recompute the published numbers and charts without Docker (Python 3.10+, standard library only):
+## Results
 
-```bash
-python3 report.py --input results/raw --output local-report
-```
+![Default and lowered clause limits](results/matrix.svg)
 
-Open `local-report/report.html`. Also in this repo: [client and server summaries](results/summary.md), [every measured request](results/requests.svg), and the committed [raw records](results/raw).
+Each setting was tested twice, starting a new OpenSearch container each time. Labels show both results. See the [original five-version Actions run](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36336273811) and [saved results](results/summary.md).
+
+Compare settings within each release, not absolute timings between releases. Hosted machines and bundled software differ.
+
+Three local repeats also showed the effect. On OpenSearch 3.8.0, lowering the limit produced a 2.27–2.32× speedup locally versus 2.05–2.06× in Actions. The speedup on 2.19.0 varied more. See [local versus Actions findings](comparisons/local-vs-actions-20260927/FINDINGS.md) for details.
 
 <details>
-<summary>All 4,000 measured requests, including 3.8.0</summary>
+<summary>All measured requests</summary>
 
-![Every measured request across all five releases](results/requests.svg)
+![All measured requests across five releases](results/requests.svg)
 
 </details>
 
-## Mechanism
+## Reproduce the issue
 
-Lucene's keyword-sort comparator builds a postings-based competitive iterator gated by `Math.min(MAX_TERMS, IndexSearcher.getMaxClauseCount())` ([`PostingsBasedCompetitiveState`](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L522), declared at [line 524](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L524), gate computed at [line 581](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L581)). [Lucene #11903](https://github.com/apache/lucene/pull/11903), commit [`f1d763a`](https://github.com/apache/lucene/commit/f1d763a75014c8a7ab9654b3038b50f64faba348), raised `MAX_TERMS` from 128 to 1024 in Lucene 9.9 (OpenSearch 2.12.0), so the comparator now enumerates competitive sort-term postings across a much wider ordinal range. On this fixture the extra enumeration costs more than it saves; lowering the Boolean ceiling to 128 shrinks the range and drops the enumeration back to doc-values ordinals on stock binaries. Lucene 10.5.0, bundled in 3.8.0, still carries both the constant and the gate. The newer doc-values [`SkipperBasedCompetitiveState`](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L648) and its adaptive disabling ([line 694](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L694)) apply to the skipper path; an indexed keyword sort takes the postings-based path.
+### Run the standalone reproducer
 
-## Scope
+[`minimal_repro.py`](minimal_repro.py) is a standard-library script for a compact upstream reproduction. Its defaults run four versions, start two new containers per version, and use an 8g heap:
 
-The fixture runs one term filter and sorts by keyword `item_key` then long `market_id`, repeating the first 250-hit page with no pagination. Production write/cleanup latency is out of scope. Cross-version rows mix bundled JDKs, plugins and hosted VMs; the within-version setting pairs carry the evidence. Two fresh pairs per version describe this run. Lowering the ceiling can reject other Boolean or expanded queries. The setting feeds a shared Lucene path, so the result does not single out one commit.
+```bash
+python3 minimal_repro.py
+```
 
-## Run one release
+The script docstring lists its Docker and Python prerequisites and the optional `--versions`, `--docs`, `--shards`, `--heap`, and `--reverse` options. The default 8g heap needs extra Docker headroom. The script defaults differ from the published five-version matrix and fixture, so this command is not identical to the published protocol. It removes the containers and networks it creates, and reports cleanup failures rather than treating them as clean.
 
-On a disposable Linux x86-64 host with Docker, Python 3.10+, at least 7 GiB RAM and roughly 15 GiB free disk, set `vm.max_map_count >= 262144` beforehand and avoid competing workloads:
+### Run one release with the published protocol
+
+Use a disposable Linux x86-64 host with Docker and Python 3.10 or newer. Allow at least 7 GiB RAM and about 15 GiB free disk. Set `vm.max_map_count >= 262144` and avoid competing workloads.
 
 ```bash
 python3 repro.py --version 3.8.0 --output artifacts/3.8.0
 ```
 
-The runner prints both paired client and server `took` ratios and retains `result.json`. Each output directory must be new. A single-release run reports `NOT_ASSESSED`; only a full same-source matrix carries the reproduction verdict. To render retained evidence offline:
+Use a new output directory for each run. The command prints paired client and server ratios and retains `result.json`. A single-release run reports `NOT_ASSESSED`, which is not a failure. The default report assesses `REPRODUCED` only for a complete five-version matrix.
+
+Changing the limit can reject larger Boolean or expanded queries. This is a diagnostic experiment, not a general production recommendation.
+
+### View saved results without Docker
+
+The reporter uses Python's standard library and accepts `results/raw/`, an Actions artifact tree, one JSON file, or a retained result directory:
+
+```bash
+python3 report.py --input results/raw --output local-report
+```
+
+Open `local-report/report.html`. To render one retained release, use:
 
 ```bash
 python3 report.py --input artifacts/3.8.0 --version 3.8.0 --output local-report
 ```
 
-The reporter also accepts one JSON file, an Actions artifact tree, or `results/raw/`. Counts and labels follow the runner's recorded `--samples`, heap and fixture parameters; nondefault settings keep the labels the run recorded. Default reporting requires all five releases from the same measured source/run; do not splice a new 3.x run into old matrix evidence. For in-place regeneration, use `--input results/raw --output results`; raw inputs are preserved byte-for-byte. `--historical-matrix` replays the [archived original four-release dataset](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/tree/38f9db311c3262ea2c532bda02ef5eacaf34b575/results) only.
+The reporter uses the sample counts, heap, and fixture parameters recorded by the runner. It writes reports to `--output`, replacing existing report files there. See [Supporting evidence and offline checks](#supporting-evidence-and-offline-checks) for in-place regeneration and the historical archive option.
 
-## Minimal upstream reproducer
+## Why the setting affects sorting
 
-[`minimal_repro.py`](minimal_repro.py) is a single-file, standard-library script for filing the upstream issue, validated on 2026-09-27. It starts one stock container per version and per node-startup ceiling (two containers per version), applies the ceiling at node startup, and prints a four-version matrix with ordered-result hashes:
+Lucene's keyword-sort comparator builds a postings-based competitive iterator. Its gate is `Math.min(MAX_TERMS, IndexSearcher.getMaxClauseCount())` in [`PostingsBasedCompetitiveState`](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L522), with the constant at [line 524](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L524) and the gate at [line 581](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L581). [Lucene #11903](https://github.com/apache/lucene/pull/11903) and [commit `f1d763a`](https://github.com/apache/lucene/commit/f1d763a75014c8a7ab9654b3038b50f64faba348) increased `MAX_TERMS` from 128 to 1024 in Lucene 9.9, bundled by OpenSearch 2.12.0.
 
-```bash
-python3 minimal_repro.py   # --versions CSV, --docs N, --shards N, --heap G, --reverse
-```
+Lowering the ceiling limits when this postings optimization can be used for the workload. It does not mean every request always switches paths. Enumerating extra postings can cost more than it saves, so the lower ceiling can improve this reduced search.
 
-Prerequisites, defaults and the validated per-version result table are in the script docstring. It needs Docker with memory headroom above the heap it requests (default 8g), and it removes the containers and networks it created.
+Lucene 10.5.0, bundled by OpenSearch 3.8.0, still has the same gate. Indexed-keyword sorting uses the postings path, while the newer doc-values [`SkipperBasedCompetitiveState`](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L648) has adaptive disabling at [line 694](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L694). This experiment changes a shared setting on stock binaries. It is not an isolated revert of one commit.
 
-## Exact reduced workload
+## Testing methodology
 
-198,000 deterministic documents, permuted insertion order, 18 primary shards, no replicas. Explicit refreshes target approximately two segments/shard; actual inventories are checked. No force merge or writes during timing. The primary keyword is unique; the second sort key is a long.
+### Workload
+
+The fixture contains 198,000 deterministic documents inserted in permuted order. It uses 18 primary shards with no replicas, explicit refreshes targeting approximately two segments per shard, and no force merge or writes during timing. Segment inventories are checked. The first sort key is a unique primary keyword and the second is a long.
 
 ```json
 {
@@ -69,57 +87,70 @@ Prerequisites, defaults and the validated per-version result table are in the sc
 }
 ```
 
-`track_total_hits` is omitted (release default). No routing, `search_after`, PIT, or pagination. Both clause ceilings apply at node startup: older releases reject dynamic changes, and 1024 is the release default.
+The first 250 results are repeated with no pagination, routing, `search_after`, or PIT. `track_total_hits` is omitted, so each release uses its default.
 
-| OpenSearch | Bundled Lucene | Role |
+### Versions and observed effect
+
+| OpenSearch | Bundled Lucene | Observed effect of lowering the limit |
 |---|---|---|
-| 1.3.20 | 8.10.1 | Negative control |
-| 2.11.1 | 9.7.0 | Negative control before the measured boundary |
-| 2.12.0 | 9.9.2 | Affected release after the boundary |
-| 2.19.0 | 9.12.1 | Affected later release |
-| 3.8.0 | 10.5.0 | Latest stable 3.x; observed 2.05-2.06x setting effect |
+| 1.3.20 | 8.10.1 | Little change |
+| 2.11.1 | 9.7.0 | Little change |
+| 2.12.0 | 9.9.2 | Faster, published pairs 2.77–3.17× |
+| 2.19.0 | 9.12.1 | Faster, published pairs 2.34–2.52× |
+| 3.8.0 | 10.5.0 | Faster, published pairs 2.05–2.06× |
 
-3.8.0 identity: official release commit [`e5a3c569`](https://github.com/opensearch-project/OpenSearch/tree/e5a3c5691be87af6c12dbe3e158c59c04ee72973), [Lucene dependency](https://github.com/opensearch-project/OpenSearch/blob/e5a3c5691be87af6c12dbe3e158c59c04ee72973/gradle/libs.versions.toml#L3), [clause-ceiling setting](https://github.com/opensearch-project/OpenSearch/blob/e5a3c5691be87af6c12dbe3e158c59c04ee72973/server/src/main/java/org/opensearch/search/SearchService.java#L398). Official linux/amd64 image manifest `sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0` for 3.8.0 and the sibling release digests are pinned in `repro.py`; registry manifests were rehashed at selection.
+### Comparison and metrics
 
-- ABBA: four fresh JVMs/version, 1024 -> 128 -> 128 -> 1024. Each has two blocks with 100 validated warmups and 100 measured requests: 800 measured requests/version, 4,000 in the five-release matrix (3,200 in the retained historical run).
-- Resources: digest-pinned linux/amd64 stock images; the same resolved image ID across a release's cells. Docker: 2 CPUs / 5 GiB memory; Java: 2 GiB heap / 2 active processors. Bundled JDK identities are retained.
-- Metrics: a cell is the median of its two block medians, for both client wall latency and server `took`. Report both opposite-order pair ratios (1024/128); chart bars are medians across pairs. Client time includes HTTP/JSON decoding but excludes oracle checking. `took` is the integer-millisecond server duration reported by the node; it excludes client and network overhead. A zero denominator prints `n/a`.
-- Historical-boundary rule: both 2.12/2.19 pairs must be >=1.25x and both 1.3/2.11 pairs within [0.80, 1.25] for `REPRODUCED`. This descriptive rule uses client latency; server timings corroborate separately. 3.8.0 is reported alongside the historical versions and excluded from that verdict. A null 3.8.0 result is valid evidence. Default matrix validity requires all five versions; missing or invalid 3.8.0 fails reporting. Explicit single-version reporting is `NOT_ASSESSED`.
+Each release uses four separately started containers in order 1024 → 128 → 128 → 1024. Each container has two blocks of 100 validated warmups followed by 100 measured requests. That is 800 measured requests per release, 4,000 across five releases, and 20 containers in total. The setting is applied at startup because older releases reject dynamic updates.
 
-## Validation scope
+The run uses pinned stock linux/amd64 images with the same resolved image for a release. Docker is limited to 2 CPUs and 5 GiB. Java uses a 2 GiB heap and 2 active processors. Bundled JDK identities are retained.
 
-Runner, during the live experiment: every warmup and measured response must match the independent ordered ID/sort/version/source oracle, with 250 hits and no timeout or failed/skipped shards. Startup settings are read back. Document/deletion counts, merge counters and segment identities must stay fixed across blocks; per-shard segment document/deletion inventories must match across rebuilt cells within a release. Engine/image identities are checked. Deadlines, cooperative host lock, loopback-only HTTP and exact-ID/owner-label cleanup stay enforced; invalidity stops that release.
+For each block, the reporter calculates a median. It calculates a container result as the median of that container's two block medians. Chart bars are the median of the two container results for each setting, and labels show both container results. Both opposite-order default/lowered ratios are reported. Client time includes HTTP and JSON decoding but excludes oracle checking. Server `took` is the integer-millisecond duration returned by OpenSearch and excludes client and network time. A zero denominator is reported as `n/a`.
 
-Reporter, offline: recomputes client/server block medians and paired ratios from timing arrays, checks recorded client medians against samples, sample counts against parameters, ABBA labels, recorded version metadata, status/cleanup markers and matching result hashes/parameters. Full response bodies and live readbacks are not retained, so recomputation plays back the runner's recorded evidence; runner validation is a recorded claim, and reporter recomputation is an evidence check. Provenance always points to the original measured source/run, even when a newer reporter regenerates the presentation.
+### Checks and offline evidence
 
-## Repeatability and host variation
+During the live run, every warmup and measured response must match an independently computed result: 250 hits with the expected IDs, sort values, versions, and source fields in the expected order. Timeouts and failed or skipped shards invalidate the run. Startup settings are read back. Document and deletion counts, merge counters, and segment identities must remain fixed across measurement blocks. Per-shard segment document and deletion inventories must also match across rebuilt containers within a release. Engine and image identities, host locking, deadlines, loopback-only access, and exact-ID owner-labeled cleanup are checked.
 
-[Three complete local repetitions versus GitHub](comparisons/local-vs-actions-20260927/FINDINGS.md) are retained: 15 invocations, 60 JVMs, 12,000 measured requests on one Ryzen 7800X3D/WSL2 host, all using the same standalone runner.
+The offline reporter recomputes timing summaries and ratios from the saved samples. It checks recorded sample counts, labels, version metadata, validation and cleanup status, and matching result hashes and parameters. It cannot independently repeat live response validation because response bodies and settings readbacks are not retained. Missing or invalid evidence fails reporting.
 
-- 3.8.0 was stable locally: all six paired speedups 2.267-2.320x, versus 2.047-2.059x on GitHub. Local absolute timings were much lower; don't transfer absolute milliseconds across hosts.
-- 2.19.0 was unstable in magnitude: 2.844-6.475x. One default-setting JVM's client block medians fell 67.684 -> 21.189 ms, with server timing corroboration. The outlier is retained. Existing warmups do not prove steady-state timing; these records cannot identify the transient's cause.
-- The qualitative effect persists, and extra repetitions are useful for reliability claims. Three runs on one WSL2 host do not estimate variation across the GitHub fleet. [All paired ratios](comparisons/local-vs-actions-20260927/ratios.svg), [absolute timings](comparisons/local-vs-actions-20260927/latency.svg), and the [replay command and interpretation](comparisons/local-vs-actions-20260927/FINDINGS.md).
+### Verdict
 
-The exact three-matrix command, lock rule and comparison behavior are in the [repeatability notes](comparisons/local-vs-actions-20260927/FINDINGS.md#running-the-same-matrices-locally).
+`REPRODUCED` requires both pairs for 2.12.0 and 2.19.0 to be at least 1.25×, and both pairs for 1.3.20 and 2.11.1 to fall within 0.80–1.25×. This is a descriptive rule, not a significance test. 3.8.0 must have valid data but its speedup is not required for the historical verdict. A single-version report is `NOT_ASSESSED`.
 
-## CI and offline checks
+## Limitations and repeatability
 
-The manual [workflow](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/workflows/reproduce.yml) offers the default five-job `parallel` matrix and an opt-in `repeated` mode (three fresh VMs, each running all five versions in varied order, 70-minute matrix-job caps). `repeated` is offline-checked; it has yet to run live on GitHub. Mode details, caps, retained outputs and failure behavior: [repeatability notes](comparisons/local-vs-actions-20260927/FINDINGS.md#github-mode-comparison).
+This is a read-only reduced first-page workload. It does not cover production writes, cleanup, or full result traversal. Two comparisons per version in the published run do not support a broad statistical claim.
 
-No schedules, push-triggered benchmarks, or automatic retries. A failed version stops its matrix; independent hosted jobs can finish, and missing or invalid evidence fails reporting. Artifacts are downloadable for 30 days; committed evidence remains in Git history. A green workflow means the evidence checks passed; the `REPRODUCED` verdict is a separate outcome in the summary.
+Three local matrices ran on one Ryzen 7 7800X3D under WSL2, not across the GitHub fleet. Absolute milliseconds depend on the host. Local 2.19.0 ratios ranged from 2.844–6.475×. In one container using the default setting, successive client block medians fell from 67.684 to 21.189 ms. Server timings showed the same pattern. The outlier is retained. The available warmups do not prove steady state, and the cause remains undetermined. See the [ratio chart](comparisons/local-vs-actions-20260927/ratios.svg), [latency chart](comparisons/local-vs-actions-20260927/latency.svg), and [detailed findings](comparisons/local-vs-actions-20260927/FINDINGS.md).
 
-Existing runner checks, reporter self-checks, and committed-raw replay coverage all run without Docker or network access:
+## Supporting evidence and offline checks
+
+The manual [GitHub Actions workflow](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/workflows/reproduce.yml) offers the default `parallel` five-job mode. Its opt-in `repeated` mode runs three fresh hosted VMs, each with all five versions in varied order and a 70-minute matrix-job cap. The repeated mode has been checked offline but has not been run live on GitHub. See the [mode details and comparison notes](comparisons/local-vs-actions-20260927/FINDINGS.md#github-mode-comparison).
+
+There are no schedules, push-triggered benchmarks, or automatic retries. Missing or invalid evidence fails reporting. A green evidence check is distinct from the `REPRODUCED` verdict. Artifacts are retained for 30 days and committed history remains available.
+
+Run the existing offline checks with no Docker or network:
 
 ```bash
 python3 -m unittest -v
 python3 report.py --self-test
 ```
 
+Regenerate the full report from the same raw source and run without changing raw inputs:
+
+```bash
+python3 report.py --input results/raw --output results
+```
+
+The reporter preserves raw inputs byte-for-byte. Do not splice a new release into an existing matrix. For the archived four-version dataset, use `--historical-matrix` and the [historical results](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/tree/38f9db311c3262ea2c532bda02ef5eacaf34b575/results). The [local run instructions](comparisons/local-vs-actions-20260927/FINDINGS.md#running-the-same-matrices-locally) and [offline comparison command](comparisons/local-vs-actions-20260927/FINDINGS.md#recompute-this-comparison-offline) are in the repeatability notes.
+
 ## Provenance
 
-Exact sources: [Lucene 9.12.1 comparator](https://github.com/apache/lucene/blob/releases/lucene/9.12.1/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L547), [OpenSearch 2.19 setting](https://github.com/opensearch-project/OpenSearch/blob/2.19.0/server/src/main/java/org/opensearch/search/SearchService.java#L321), [forwarding to Lucene](https://github.com/opensearch-project/OpenSearch/blob/2.19.0/server/src/main/java/org/opensearch/search/SearchService.java#L469).
+OpenSearch 3.8.0 is identified by the [official release](https://github.com/opensearch-project/OpenSearch/releases/tag/3.8.0), release commit [`e5a3c569`](https://github.com/opensearch-project/OpenSearch/tree/e5a3c5691be87af6c12dbe3e158c59c04ee72973), its [Lucene dependency](https://github.com/opensearch-project/OpenSearch/blob/e5a3c5691be87af6c12dbe3e158c59c04ee72973/gradle/libs.versions.toml#L3), and the [clause-ceiling setting](https://github.com/opensearch-project/OpenSearch/blob/e5a3c5691be87af6c12dbe3e158c59c04ee72973/server/src/main/java/org/opensearch/search/SearchService.java#L398). Its official linux/amd64 image manifest is pinned as `sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0`. Sibling release digests are also pinned in `repro.py`.
 
-Extracted from an earlier private investigation workspace; [`minimal_repro.py`](minimal_repro.py) publishes the one-file script unchanged (SHA-256 `228674cab284f2cb6cd695a4ff9f39d7bbaddc70da1d81341734c274a7c36037`). The original investigation concerned upgrade-related latency; this repo isolates its read-only sorted-search finding. It contains no production data, credentials or patched binaries. The GitHub Actions setup follows the pinned-release pattern of the [routing reproduction](https://github.com/camerondurham/bug-repro-opensearch-routing).
+Useful source references are the [Lucene 9.12.1 comparator](https://github.com/apache/lucene/blob/releases/lucene/9.12.1/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L547), [OpenSearch 2.19 setting](https://github.com/opensearch-project/OpenSearch/blob/2.19.0/server/src/main/java/org/opensearch/search/SearchService.java#L321), and [forwarding to Lucene](https://github.com/opensearch-project/OpenSearch/blob/2.19.0/server/src/main/java/org/opensearch/search/SearchService.java#L469). The standalone script is published unchanged with SHA-256 `228674cab284f2cb6cd695a4ff9f39d7bbaddc70da1d81341734c274a7c36037`.
+
+This reproduction came from an earlier private investigation workspace. The original investigation concerned upgrade-related latency. This repository isolates its read-only sorted-search finding and contains no production data, credentials, or patched binaries. The GitHub Actions setup follows the pinned-release pattern of the [routing reproduction](https://github.com/camerondurham/bug-repro-opensearch-routing).
 
 ## License
 

@@ -1,9 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560">
 <rect width="100%" height="100%" fill="white"/>
-<text x="600.0" y="28.0" font-family="sans-serif" font-size="18px" text-anchor="middle" fill="#222" font-weight="bold">Boolean-clause ceiling changes keyword-sorted query latency</text>
-<text x="600.0" y="48.0" font-family="sans-serif" font-size="11px" text-anchor="middle" fill="#555" font-weight="normal">Client request latency; repeated first page.</text>
-<text x="600.0" y="64.0" font-family="sans-serif" font-size="11px" text-anchor="middle" fill="#555" font-weight="normal">Compare settings within each version; hosted VMs and bundled JDKs differ across versions.</text>
-<text x="600.0" y="80.0" font-family="sans-serif" font-size="11px" text-anchor="middle" fill="#555" font-weight="normal">Bars are pair medians; labels show both fresh-JVM summaries.</text>
+<text x="600.0" y="28.0" font-family="sans-serif" font-size="18px" text-anchor="middle" fill="#222" font-weight="bold">Keyword-sort latency by clause limit</text>
+<text x="600.0" y="48.0" font-family="sans-serif" font-size="11px" text-anchor="middle" fill="#555" font-weight="normal">Client latency for repeated searches of the first page</text>
+<text x="600.0" y="64.0" font-family="sans-serif" font-size="11px" text-anchor="middle" fill="#555" font-weight="normal">Compare settings within each release. Each setting was tested in two separately started containers.</text>
 <line x1="90" y1="475.0" x2="1160" y2="475.0" stroke="#ddd"/>
 <text x="80.0" y="479.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">0.0</text>
 <line x1="90" y1="381.2" x2="1160" y2="381.2" stroke="#ddd"/>
@@ -52,8 +51,8 @@
 <rect x="1053.0" y="363.2" width="55" height="111.8" fill="#1b75bc"/>
 <text x="1080.5" y="354.2" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">38.3 / 37.6</text>
 <text x="1080.5" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">128</text>
-<rect x="940" y="62" width="14" height="14" fill="#d95f02"/>
-<text x="960.0" y="74.0" font-family="sans-serif" font-size="11px" text-anchor="start" fill="#222" font-weight="normal">ceiling 1024</text>
-<rect x="1055" y="62" width="14" height="14" fill="#1b75bc"/>
-<text x="1075.0" y="74.0" font-family="sans-serif" font-size="11px" text-anchor="start" fill="#222" font-weight="normal">ceiling 128</text>
+<rect x="400" y="78" width="14" height="14" fill="#d95f02"/>
+<text x="420.0" y="90.0" font-family="sans-serif" font-size="11px" text-anchor="start" fill="#222" font-weight="normal">Default limit: 1024</text>
+<rect x="650" y="78" width="14" height="14" fill="#1b75bc"/>
+<text x="670.0" y="90.0" font-family="sans-serif" font-size="11px" text-anchor="start" fill="#222" font-weight="normal">Lowered limit: 128</text>
 </svg>

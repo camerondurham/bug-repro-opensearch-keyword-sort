@@ -226,10 +226,9 @@ def render_matrix(chosen, versions=VERSIONS):
             values.extend(cell_median(c) for c in d["cells"])
     ymax = max(values or [1]) * 1.25
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">',
-             '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 28, "Boolean-clause ceiling changes keyword-sorted query latency", 18, "middle", weight="bold"),
-             svg_text(600, 48, "Client request latency; repeated first page.", 11, "middle", fill="#555"),
-             svg_text(600, 64, "Compare settings within each version; hosted VMs and bundled JDKs differ across versions.", 11, "middle", fill="#555"),
-             svg_text(600, 80, "Bars are pair medians; labels show both fresh-JVM summaries.", 11, "middle", fill="#555")]
+             '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 28, "Keyword-sort latency by clause limit", 18, "middle", weight="bold"),
+             svg_text(600, 48, "Client latency for repeated searches of the first page", 11, "middle", fill="#555"),
+             svg_text(600, 64, "Compare settings within each release. Each setting was tested in two separately started containers.", 11, "middle", fill="#555")]
     for tick in range(5):
         y = bottom - (bottom - top) * tick / 4
         value = ymax * tick / 4
@@ -253,8 +252,8 @@ def render_matrix(chosen, versions=VERSIONS):
             parts += [f'<rect x="{x:.1f}" y="{bottom-bar_h:.1f}" width="55" height="{bar_h:.1f}" fill="{COLORS[ceiling]}"/>',
                       svg_text(x + 27.5, bottom - bar_h - 9, f"{vals[0]:.1f} / {vals[1]:.1f}", 10, "middle"),
                       svg_text(x + 27.5, bottom + 14, str(ceiling), 10, "middle")]
-    parts += [f'<rect x="{right-220}" y="{top-38}" width="14" height="14" fill="{COLORS[1024]}"/>', svg_text(right-200, top-26, "ceiling 1024", 11),
-              f'<rect x="{right-105}" y="{top-38}" width="14" height="14" fill="{COLORS[128]}"/>', svg_text(right-85, top-26, "ceiling 128", 11), '</svg>']
+    parts += [f'<rect x="400" y="78" width="14" height="14" fill="{COLORS[1024]}"/>', svg_text(420, 90, "Default limit: 1024", 11),
+              f'<rect x="650" y="78" width="14" height="14" fill="{COLORS[128]}"/>', svg_text(670, 90, "Lowered limit: 128", 11), '</svg>']
     return "\n".join(parts)
 
 
@@ -262,7 +261,7 @@ def render_requests(chosen, versions=VERSIONS):
     width, panel_h, height = 1200, 275, len(versions) * 275 + 45
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">',
              '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 25, "All measured requests by release", 18, "middle", weight="bold"),
-             svg_text(600, 45, "Fresh JVM in each segment; dashed lines separate its two measurement blocks", 11, "middle", fill="#555")]
+             svg_text(600, 45, "Each section is a separate OpenSearch container. Dashed lines divide its two measurement blocks.", 11, "middle", fill="#555")]
     plot_left, plot_right = 90, 1160
     all_points = []
     for version in versions:
@@ -290,7 +289,7 @@ def render_requests(chosen, versions=VERSIONS):
             x0 = plot_left + (plot_right - plot_left) * cell_no / 4
             x1 = plot_left + (plot_right - plot_left) * (cell_no + 1) / 4
             parts += [f'<line x1="{x0:.1f}" y1="{top}" x2="{x0:.1f}" y2="{bottom}" stroke="#777" stroke-width="2"/>',
-                      svg_text((x0+x1)/2, bottom + 18, f"JVM {cell_no+1} ({cell.get('ceiling', '?')})", 9, "middle")]
+                      svg_text((x0+x1)/2, bottom + 18, f"Container {cell_no+1} ({cell.get('ceiling', '?')})", 9, "middle")]
             mid = (x0 + x1) / 2
             parts.append(f'<line x1="{mid:.1f}" y1="{top}" x2="{mid:.1f}" y2="{bottom}" stroke="#999" stroke-dasharray="3,3"/>')
             samples = cell.get("samples", [])
@@ -305,10 +304,10 @@ def render_requests(chosen, versions=VERSIONS):
             if pts:
                 parts.append('<polyline fill="none" stroke="%s" stroke-width="0.7" opacity=".35" points="%s"/>' %
                              (COLORS.get(cell.get("ceiling"), "#777"), " ".join(f"{x:.2f},{y:.2f}" for x, y in pts)))
-    parts += [f'<rect x="{plot_right-480}" y="{height-25}" width="12" height="12" fill="{COLORS[1024]}"/>', svg_text(plot_right-462, height-15, "ceiling 1024", 10),
-              f'<rect x="{plot_right-375}" y="{height-25}" width="12" height="12" fill="{COLORS[128]}"/>', svg_text(plot_right-357, height-15, "ceiling 128", 10),
-              f'<line x1="{plot_right-285}" y1="{height-19}" x2="{plot_right-260}" y2="{height-19}" stroke="#777" stroke-width="2"/>', svg_text(plot_right-252, height-15, "fresh JVM boundary", 10),
-              f'<line x1="{plot_right-125}" y1="{height-19}" x2="{plot_right-100}" y2="{height-19}" stroke="#999" stroke-dasharray="3,3"/>', svg_text(plot_right-92, height-15, "block boundary", 10), '</svg>']
+    parts += [f'<rect x="550" y="{height-25}" width="12" height="12" fill="{COLORS[1024]}"/>', svg_text(568, height-15, "Default limit: 1024", 10),
+              f'<rect x="700" y="{height-25}" width="12" height="12" fill="{COLORS[128]}"/>', svg_text(718, height-15, "Lowered limit: 128", 10),
+              f'<line x1="850" y1="{height-19}" x2="875" y2="{height-19}" stroke="#777" stroke-width="2"/>', svg_text(882, height-15, "container boundary", 10),
+              f'<line x1="1030" y1="{height-19}" x2="1055" y2="{height-19}" stroke="#999" stroke-dasharray="3,3"/>', svg_text(1062, height-15, "block boundary", 10), '</svg>']
     return "\n".join(parts)
 
 
@@ -331,11 +330,11 @@ def summary_and_metrics(chosen, errors, versions=VERSIONS):
              f"**Reporter evidence checks / recomputation:** {'PASS' if valid else 'FAIL'}",
              f"**Historical-boundary performance outcome:** **{outcome}**", "",
              "Reported releases: " + ", ".join(versions) + ".", "",
-             "Cell values are medians of two block medians, recomputed from the retained samples. "
-             "Tables show the median across pairs, then each pair's cell value in parentheses. "
+             "Each block value is a median of its retained samples. A container result is the median of its two block medians. "
+             "Tables show the median of the two container results for each setting, followed by both results in parentheses. "
              "Ratios are 1024 / 128 in the two opposite orders."]
     for title, series in (("Client wall latency", ratios), ("Server `took`", server)):
-        lines += ["", f"## {title}", "", "| Version | 1024 pair median (ms) | 128 pair median (ms) | Pair ratios (1024 / 128) |", "|---|---:|---:|---|"]
+        lines += ["", f"## {title}", "", "| Version | Default limit 1024 (ms) | Lowered limit 128 (ms) | Pair ratios (1024 / 128) |", "|---|---:|---:|---|"]
         for version in versions:
             rs = series.get(version)
             if rs:
