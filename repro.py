@@ -311,6 +311,9 @@ def main():
     finally:
         result["elapsed_seconds"] = time.monotonic() - started
         (args.output / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+    if result["status"] == "valid":
+        from report import print_pairs
+        print_pairs(result)
     return 0 if result["status"] == "valid" else 1
 
 

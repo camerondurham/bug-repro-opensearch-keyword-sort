@@ -36,7 +36,11 @@ def svg_text(x, y, text, size=12, anchor="start", fill="#222", weight="normal"):
 
 def read_results(root):
     found = []
-    for path in sorted(root.rglob("result.json")):
+    # Actions artifacts use */result.json; committed evidence uses raw/<version>.json.
+    paths = ([root] if root.is_file() else
+             sorted(set(root.rglob("result.json")) | set(root.glob("[0-9]*.json")) |
+                    set(root.glob("raw/*.json"))))
+    for path in paths:
         item = {"path": path, "data": None, "error": None}
         try:
             item["data"] = json.loads(path.read_text(encoding="utf-8"))
@@ -70,12 +74,25 @@ def validate_record(item):
     if d.get("status") == "valid" and d.get("error") is not None:
         errors.append("valid result has a non-null error")
     p = d.get("parameters")
+    samples_per_block = None
     if not isinstance(p, dict):
         errors.append("parameters is not an object")
     else:
-        for key, expected in (("docs", 198000), ("shards", 18), ("heap", "2g"), ("samples", 100)):
-            if p.get(key) != expected:
-                errors.append(f"parameters.{key} is not {expected!r}")
+        # Match the runner's admitted CLI values, not just the published defaults.
+        for key, minimum in (("docs", 1000), ("shards", 1), ("samples", 30),
+                             ("block_warmups", 0), ("chunk", 1), ("max_seconds", 120)):
+            value = p.get(key)
+            if type(value) is not int or value < minimum:
+                errors.append(f"parameters.{key} must be an integer >= {minimum}")
+        if type(p.get("docs")) is int and math.gcd(p["docs"], 104729) != 1:
+            errors.append("parameters.docs must be coprime with 104729")
+        if p.get("heap") not in ("1g", "2g", "3g"):
+            errors.append("parameters.heap is not an admitted runner heap")
+        if type(p.get("max_seconds")) is int and p["max_seconds"] > 1800:
+            errors.append("parameters.max_seconds exceeds 1800")
+        if type(p.get("samples")) is int and p["samples"] >= 30:
+            samples_per_block = p["samples"]
+    expected_samples = 2 * samples_per_block if samples_per_block is not None else None
     if not isinstance(d.get("query"), dict):
         errors.append("query is not an object")
     cells = d.get("cells")
@@ -92,10 +109,10 @@ def validate_record(item):
         blocks, samples, took = cell.get("block_medians"), cell.get("samples"), cell.get("took_ms")
         if not isinstance(blocks, list) or len(blocks) != 2:
             errors.append(f"cell {i} does not have two block medians")
-        if not isinstance(samples, list) or len(samples) != 200:
-            errors.append(f"cell {i} does not have 200 samples")
-        if not isinstance(took, list) or len(took) != 200:
-            errors.append(f"cell {i} does not have 200 took_ms values")
+        if not isinstance(samples, list) or len(samples) != expected_samples:
+            errors.append(f"cell {i} sample count does not match two declared blocks")
+        if not isinstance(took, list) or len(took) != expected_samples:
+            errors.append(f"cell {i} took_ms count does not match two declared blocks")
         if isinstance(blocks, list):
             if not all(finite_number(x) and x > 0 for x in blocks):
                 errors.append(f"cell {i} has invalid block medians")
@@ -106,9 +123,9 @@ def validate_record(item):
             if not all(isinstance(x, int) and not isinstance(x, bool) and x >= 0 for x in took):
                 errors.append(f"cell {i} has invalid took_ms values")
         if (isinstance(blocks, list) and len(blocks) == 2 and isinstance(samples, list)
-                and len(samples) == 200 and all(finite_number(x) and x > 0 for x in blocks)
+                and len(samples) == expected_samples and all(finite_number(x) and x > 0 for x in blocks)
                 and all(finite_number(x) and x > 0 for x in samples)):
-            actual = [med(samples[:100]), med(samples[100:])]
+            actual = [med(samples[:samples_per_block]), med(samples[samples_per_block:])]
             if any(not math.isclose(a, b, rel_tol=1e-7, abs_tol=1e-7) for a, b in zip(blocks, actual)):
                 errors.append(f"cell {i} block medians do not match samples")
         if not isinstance(cell.get("result_hash"), str) or not cell["result_hash"]:
@@ -133,7 +150,7 @@ def validate_record(item):
     return errors
 
 
-def validate_all(items):
+def validate_all(items, versions=VERSIONS):
     errors = []
     by_version = {}
     for item in items:
@@ -142,13 +159,13 @@ def validate_all(items):
         if version in VERSIONS:
             by_version.setdefault(version, []).append(item)
         item["errors"] = validate_record(item)
-    for version in VERSIONS:
+    for version in versions:
         if len(by_version.get(version, [])) != 1:
             errors.append(f"expected exactly one result for {version}, found {len(by_version.get(version, []))}")
     for version, group in by_version.items():
         if len(group) > 1:
             errors.append(f"duplicate result for {version}")
-    chosen = {v: by_version[v][0] for v in VERSIONS if len(by_version.get(v, [])) == 1}
+    chosen = {v: by_version[v][0] for v in versions if len(by_version.get(v, [])) == 1}
     for item in items:
         d = item.get("data")
         version = d.get("version") if isinstance(d, dict) else None
@@ -156,35 +173,55 @@ def validate_all(items):
             errors.extend(f"{item['path']}: {e}" for e in (item.get("errors") or ["unknown or malformed result"]))
     for v, item in chosen.items():
         errors.extend(f"{v}: {e}" for e in item["errors"])
-    if len(chosen) == len(VERSIONS) and all(not chosen[v]["errors"] for v in VERSIONS):
-        first = chosen[VERSIONS[0]]["data"]
-        for v in VERSIONS[1:]:
+    if len(chosen) == len(versions) and all(not chosen[v]["errors"] for v in versions):
+        first = chosen[versions[0]]["data"]
+        for v in versions[1:]:
             d = chosen[v]["data"]
             for key in ("parameters", "query", "source_sha", "run_url"):
                 if d.get(key) != first.get(key):
                     errors.append(f"{key} differs between releases")
-        hashes = {c["result_hash"] for v in VERSIONS for c in chosen[v]["data"]["cells"]}
+        hashes = {c["result_hash"] for v in versions for c in chosen[v]["data"]["cells"]}
         if len(hashes) != 1:
             errors.append("result_hash differs across cells or releases")
     return chosen, errors
 
 
-def pair_info(d):
+def cell_median(cell, field="samples"):
+    values = cell[field]
+    n = len(values) // 2
+    return med([med(values[:n]), med(values[n:])])
+
+
+def pair_info(d, field="samples"):
     cells = d["cells"]
     pairs = []
     for default, control in ((cells[0], cells[1]), (cells[3], cells[2])):
-        a, b = med(default["block_medians"]), med(control["block_medians"])
-        pairs.append({"default": a, "ceiling_128": b, "ratio": a / b})
+        a, b = cell_median(default, field), cell_median(control, field)
+        pairs.append({"default": a, "ceiling_128": b, "ratio": a / b if b else None})
     return pairs
 
 
-def render_matrix(chosen):
+def ratio_text(value):
+    return f"{value:.3f}×" if value is not None else "n/a (zero denominator)"
+
+
+def print_pairs(d):
+    print(f"{d['version']}: runner validation (recorded)={d['status']}; paired 1024 / 128 ratios")
+    for n, (client, took) in enumerate(zip(pair_info(d), pair_info(d, "took_ms")), 1):
+        print(f"  pair {n}: client {ratio_text(client['ratio'])} "
+              f"({client['default']:.3f} / {client['ceiling_128']:.3f} ms); "
+              f"server took {ratio_text(took['ratio'])} "
+              f"({took['default']:.3f} / {took['ceiling_128']:.3f} ms)")
+    print("Full-matrix verdict not assessed by a single-version run.")
+
+
+def render_matrix(chosen, versions=VERSIONS):
     width, height, left, right, top, bottom = 1200, 560, 90, 1160, 70, 475
     values = []
-    for v in VERSIONS:
+    for v in versions:
         d = chosen.get(v, {}).get("data") if isinstance(chosen.get(v), dict) else None
         if d and not chosen[v].get("errors"):
-            values.extend(med(c["block_medians"]) for c in d["cells"])
+            values.extend(cell_median(c) for c in d["cells"])
     ymax = max(values or [1]) * 1.25
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">',
              '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 28, "Keyword sort latency by version and clause ceiling", 18, "middle", weight="bold"),
@@ -196,8 +233,8 @@ def render_matrix(chosen):
     parts += [f'<line x1="{left}" y1="{top}" x2="{left}" y2="{bottom}" stroke="#333"/>',
               f'<line x1="{left}" y1="{bottom}" x2="{right}" y2="{bottom}" stroke="#333"/>',
               svg_text(25, (top + bottom) / 2, "ms", 12, "middle")]
-    group_w = (right - left) / 4
-    for i, version in enumerate(VERSIONS):
+    group_w = (right - left) / len(versions)
+    for i, version in enumerate(versions):
         d = chosen.get(version, {}).get("data") if isinstance(chosen.get(version), dict) else None
         gx = left + i * group_w
         parts.append(svg_text(gx + group_w / 2, bottom + 28, version, 13, "middle", weight="bold"))
@@ -206,7 +243,7 @@ def render_matrix(chosen):
             x = gx + group_w * .22 + j * group_w * .28
             if not d or chosen[version].get("errors"):
                 continue
-            vals = [med(d["cells"][n]["block_medians"]) for n in cell_indexes]
+            vals = [cell_median(d["cells"][n]) for n in cell_indexes]
             value = med(vals)
             bar_h = (bottom - top) * value / ymax
             parts += [f'<rect x="{x:.1f}" y="{bottom-bar_h:.1f}" width="55" height="{bar_h:.1f}" fill="{COLORS[ceiling]}"/>',
@@ -217,33 +254,33 @@ def render_matrix(chosen):
     return "\n".join(parts)
 
 
-def render_requests(chosen):
-    width, panel_h, height = 1200, 275, 4 * 275 + 45
+def render_requests(chosen, versions=VERSIONS):
+    width, panel_h, height = 1200, 275, len(versions) * 275 + 45
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">',
              '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 25, "All request samples by release", 18, "middle", weight="bold"),
-             svg_text(600, 45, "Each labeled JVM segment is a fresh container; dashed lines mark the two 100-sample blocks", 11, "middle", fill="#555")]
+             svg_text(600, 45, "Each labeled JVM segment is a fresh container; dashed lines separate its two equal-sized measurement blocks", 11, "middle", fill="#555")]
     plot_left, plot_right = 90, 1160
     all_points = []
-    for version in VERSIONS:
+    for version in versions:
         item = chosen.get(version)
-        if item and isinstance(item.get("data"), dict):
+        if item and not item.get("errors") and isinstance(item.get("data"), dict):
             for cell in item["data"].get("cells", []):
                 all_points.extend(x for x in cell.get("samples", []) if finite_number(x) and x > 0)
     ymax = max(all_points or [1]) * 1.12
-    for row, version in enumerate(VERSIONS):
+    for row, version in enumerate(versions):
         y0, top, bottom = row * panel_h + 100, row * panel_h + 100, row * panel_h + 273
         item = chosen.get(version)
         d = item.get("data") if item else None
         parts += [svg_text(90, y0 - 20, f"{version} request samples", 14, weight="bold"),
-                  svg_text(1160, y0 - 20, "N=800" if d and not item.get("errors") else "incomplete / invalid", 11, "end", fill="#a00" if not d or item.get("errors") else "#555"),
+                  svg_text(1160, y0 - 20, f"N={8 * d['parameters']['samples']}" if d and not item.get("errors") else "incomplete / invalid", 11, "end", fill="#a00" if not d or item.get("errors") else "#555"),
                   f'<line x1="{plot_left}" y1="{bottom}" x2="{plot_right}" y2="{bottom}" stroke="#333"/>',
                   f'<line x1="{plot_left}" y1="{top}" x2="{plot_left}" y2="{bottom}" stroke="#333"/>',
                   svg_text(20, (top + bottom) / 2, "ms", 11, "middle")]
         for tick in (0, .5, 1):
             y = bottom - (bottom - top) * tick
             parts += [f'<line x1="{plot_left}" y1="{y:.1f}" x2="{plot_right}" y2="{y:.1f}" stroke="#eee"/>', svg_text(plot_left - 8, y + 4, f"{ymax*tick:.0f}", 9, "end")]
-        if not d:
-            parts.append(svg_text(600, (top + bottom) / 2, "no result.json for this release", 13, "middle", fill="#a00"))
+        if not d or item.get("errors"):
+            parts.append(svg_text(600, (top + bottom) / 2, "missing or invalid result for this release", 13, "middle", fill="#a00"))
             continue
         for cell_no, cell in enumerate(d.get("cells", [])):
             x0 = plot_left + (plot_right - plot_left) * cell_no / 4
@@ -257,7 +294,7 @@ def render_requests(chosen):
             for n, value in enumerate(samples):
                 if not finite_number(value) or value <= 0:
                     continue
-                x = x0 + (n + .5) * (x1 - x0) / 200
+                x = x0 + (n + .5) * (x1 - x0) / len(samples)
                 y = bottom - (bottom - top) * value / ymax
                 pts.append((x, y))
                 parts.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="1.7" fill="{COLORS.get(cell.get("ceiling"), "#777")}"/>')
@@ -271,28 +308,43 @@ def render_requests(chosen):
     return "\n".join(parts)
 
 
-def summary_and_metrics(chosen, errors):
+def summary_and_metrics(chosen, errors, versions=VERSIONS):
     valid = not errors
-    ratios = {}
-    for version in VERSIONS:
+    ratios, server = {}, {}
+    runner_status = {v: chosen[v]["data"].get("status") for v in versions if v in chosen}
+    for version in versions:
         item = chosen.get(version)
         if item and not item.get("errors"):
             ratios[version] = pair_info(item["data"])
-    reproduced = valid and all(r["ratio"] >= 1.25 for v in ("2.12.0", "2.19.0") for r in ratios[v]) and all(
+            server[version] = pair_info(item["data"], "took_ms")
+    full_matrix = tuple(versions) == VERSIONS and len(chosen) == len(VERSIONS)
+    reproduced = valid and full_matrix and all(r["ratio"] >= 1.25 for v in ("2.12.0", "2.19.0") for r in ratios[v]) and all(
         0.8 <= r["ratio"] <= 1.25 for v in ("1.3.20", "2.11.1") for r in ratios[v])
-    outcome = "REPRODUCED" if reproduced else ("NOT_REPRODUCED" if valid else "INVALID_MEASUREMENT")
-    lines = ["# Keyword sort latency report", "", f"**Measurement validity:** {'VALID' if valid else 'INVALID'}", f"**Performance outcome:** **{outcome}**", "", "## Version summary", "", "| Version | 1024 pair median (ms) | 128 pair median (ms) | Pair ratios (1024 / 128) |", "|---|---:|---:|---|"]
-    for version in VERSIONS:
-        rs = ratios.get(version)
-        if rs:
-            dvals = [r["default"] for r in rs]
-            cvals = [r["ceiling_128"] for r in rs]
-            ratio_text = ", ".join(f"{r['ratio']:.3f}" for r in rs)
-            lines.append(f"| {version} | {med(dvals):.3f} ({dvals[0]:.3f}, {dvals[1]:.3f}) | {med(cvals):.3f} ({cvals[0]:.3f}, {cvals[1]:.3f}) | {ratio_text} |")
-        else:
-            lines.append(f"| {version} | unavailable | unavailable | unavailable |")
-    lines += ["", "## Provenance", ""]
-    first = next((chosen[v]["data"] for v in VERSIONS if v in chosen and isinstance(chosen[v].get("data"), dict)), None)
+    outcome = ("INVALID_EVIDENCE" if not valid else "NOT_ASSESSED" if not full_matrix else
+               "REPRODUCED" if reproduced else "NOT_REPRODUCED")
+    lines = ["# Keyword sort latency report", "",
+             "**Runner validation (recorded):** " + ", ".join(f"{v}={runner_status.get(v, 'missing')}" for v in versions),
+             f"**Reporter evidence checks / recomputation:** {'PASS' if valid else 'FAIL'}",
+             f"**Full-matrix performance outcome:** **{outcome}**", "",
+             "Cell values are medians of two block medians, recomputed from the retained samples. "
+             "Tables show the median across pairs, then each pair's cell value in parentheses. "
+             "Ratios are 1024 / 128 in the two opposite orders."]
+    for title, series in (("Client wall latency", ratios), ("Server `took`", server)):
+        lines += ["", f"## {title}", "", "| Version | 1024 pair median (ms) | 128 pair median (ms) | Pair ratios (1024 / 128) |", "|---|---:|---:|---|"]
+        for version in versions:
+            rs = series.get(version)
+            if rs:
+                dvals = [r["default"] for r in rs]
+                cvals = [r["ceiling_128"] for r in rs]
+                ratios_text = ", ".join(ratio_text(r["ratio"]) for r in rs)
+                lines.append(f"| {version} | {med(dvals):.3f} ({dvals[0]:.3f}, {dvals[1]:.3f}) | {med(cvals):.3f} ({cvals[0]:.3f}, {cvals[1]:.3f}) | {ratios_text} |")
+            else:
+                lines.append(f"| {version} | unavailable | unavailable | unavailable |")
+    lines += ["", "Client wall time includes HTTP/JSON decoding, excluding oracle checking. "
+              "Server `took` is the returned integer-millisecond server duration, not CPU time; "
+              "it excludes client/network overhead. A zero control median gives an undefined (`n/a`) ratio.",
+              "", "## Provenance", ""]
+    first = next((chosen[v]["data"] for v in versions if v in chosen and isinstance(chosen[v].get("data"), dict)), None)
     lines += [f"- Source SHA: `{first.get('source_sha') if first else 'unavailable'}`", f"- Run: {first.get('run_url') if first else 'unavailable'}"]
     if first and first.get("run_url", "").startswith("https://github.com/"):
         repo_url = first["run_url"].split("/actions/runs/")[0]
@@ -300,14 +352,34 @@ def summary_and_metrics(chosen, errors):
                   f"- [Published charts and raw data]({repo_url}/tree/main/results)"]
     lines += ["", "[Matrix chart](matrix.svg) · [Every request](requests.svg) · [Offline HTML report](report.html)",
               "", "Reproduction rule: both affected-release pairs ≥1.25×, both negative-control pairs within [0.80, 1.25]. Validity and this descriptive performance rule are separate.",
-              "", "## Validation findings", ""]
-    lines += [f"- {e}" for e in errors] or ["- All four releases, cells, identities, hashes, cleanup markers, and cross-release invariants validated."]
-    lines += ["", "## Caveats", "", "- Bundled JDK versions are confounded across releases.", "- This is a 2 CPU / 2 GiB heap CI measurement.", "- It repeats one query on the first page; it is not full traversal or a production shark fin.", "- Samples are not independent replicates; fresh JVMs and block boundaries are shown separately.", "- The 128 setting is a coupled boolean ceiling, not an isolated production control.", ""]
-    metrics = {"schema": 1, "versions": list(VERSIONS), "valid": valid, "outcome": outcome, "errors": errors, "pair_ratios": ratios}
+              "", "## Runner validation versus reporter recomputation", "",
+              "- The runner performed live response-oracle, settings, index-state, identity and owned-cleanup checks. "
+              "Its `status`, hashes, identity/layout snapshots and cleanup markers are retained claims.",
+              "- The reporter checks those records' structure, declared sample counts, ABBA labels, recorded version numbers, "
+              "clean markers and matching hashes/parameters across the selected releases. It recomputes client/server block medians "
+              "and paired ratios from raw timing arrays, and compares client block medians with the recorded values.",
+              "- The reporter does not contact Docker/OpenSearch or revalidate live settings/ownership. "
+              "Full response bodies and every live readback are not retained; it cannot independently replay the response oracle "
+              "or certify that cleanup occurred. This is evidence replay, not a new experiment.",
+              "", "### Reporter findings", ""]
+    lines += [f"- {e}" for e in errors] or ["- Retained evidence checks and timing recomputation passed."]
+    if not full_matrix:
+        lines += ["- No full-matrix verdict: all four releases are required; paired single-version results are descriptive."]
+    if first and isinstance(first.get("parameters"), dict):
+        lines += ["", "Recorded parameters: `" + json.dumps(first["parameters"], sort_keys=True) + "`."]
+    lines += ["", "## Limitations", "", "- Bundled JDK versions and hosted VMs are confounded across releases.",
+              "- Container CPU limit is 2; heap and sample counts are recorded above (published run: 2 GiB heap).",
+              "- Reduced synthetic fixture: keyword `item_key` + long `market_id` sorts; repeated first page only, no pagination.",
+              "- Not a production write/cleanup shark-fin reproduction, full traversal, or isolated commit revert.",
+              "- Samples are not independent replicates; fresh JVMs and block boundaries are shown separately.",
+              "- The 128 setting also limits Boolean/expanded queries; it is not blanket production advice.", ""]
+    metrics = {"schema": 1, "versions": list(versions), "valid": valid, "outcome": outcome,
+               "errors": errors, "pair_ratios": ratios, "server_took_pair_ratios": server,
+               "runner_status": runner_status, "reporter_checks": "PASS" if valid else "FAIL"}
     return "\n".join(lines), metrics
 
 
-def write_report(items, chosen, errors, output):
+def write_report(items, chosen, errors, output, versions=VERSIONS):
     output.mkdir(parents=True, exist_ok=True)
     raw = output / "raw"
     raw.mkdir(exist_ok=True)
@@ -317,32 +389,42 @@ def write_report(items, chosen, errors, output):
         version = d.get("version") if isinstance(d, dict) and d.get("version") in VERSIONS else f"invalid-{n}"
         used[version] = used.get(version, 0) + 1
         suffix = "" if used[version] == 1 else f"-duplicate-{used[version]}"
-        shutil.copyfile(item["path"], raw / f"{version}{suffix}.json")
-    matrix = render_matrix(chosen)
-    requests = render_requests(chosen)
-    summary, metrics = summary_and_metrics(chosen, errors)
+        destination = raw / f"{version}{suffix}.json"
+        if item["path"].resolve() != destination.resolve():
+            shutil.copyfile(item["path"], destination)
+    matrix = render_matrix(chosen, versions)
+    requests = render_requests(chosen, versions)
+    summary, metrics = summary_and_metrics(chosen, errors, versions)
     (output / "matrix.svg").write_text(matrix, encoding="utf-8")
     (output / "requests.svg").write_text(requests, encoding="utf-8")
     (output / "summary.md").write_text(summary, encoding="utf-8")
     (output / "metrics.json").write_text(json.dumps(metrics, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     rows = []
-    for v in VERSIONS:
+    for v in versions:
         item = chosen.get(v)
-        state = "valid" if item and not item.get("errors") else "invalid/missing"
+        state = "reporter checks passed" if item and not item.get("errors") else "invalid/missing"
         rs = metrics["pair_ratios"].get(v, [])
         ratio_text = ", ".join(f"{r['ratio']:.3f}" for r in rs) or "unavailable"
         rows.append(f"<tr><td>{esc(v)}</td><td>{esc(state)}</td><td>{esc(ratio_text)}</td></tr>")
     document = """<!doctype html><meta charset="utf-8"><title>Keyword sort report</title>
 <style>body{font:14px sans-serif;max-width:1200px;margin:2em auto}svg{width:100%%;height:auto}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:.35em .7em}</style>
-<h1>Keyword sort latency report</h1><table><tr><th>Version</th><th>Measurement</th><th>Pair ratios (1024 / 128)</th></tr>%s</table><h2>Latency matrix</h2>%s<h2>Requests</h2>%s<pre>%s</pre>""" % ("".join(rows), matrix, requests, esc(summary))
+<h1>Keyword sort latency report</h1><table><tr><th>Version</th><th>Reporter evidence checks</th><th>Client pair ratios (1024 / 128)</th></tr>%s</table><h2>Latency matrix</h2>%s<h2>Requests</h2>%s<pre>%s</pre>""" % ("".join(rows), matrix, requests, esc(summary))
     (output / "report.html").write_text(document, encoding="utf-8")
     return metrics
 
 
-def run(input_dir, output_dir):
+def run(input_dir, output_dir, version=None):
+    versions = (version,) if version else VERSIONS
     items = read_results(Path(input_dir))
-    chosen, errors = validate_all(items)
-    write_report(items, chosen, errors, Path(output_dir))
+    if version:
+        items = [item for item in items if not isinstance(item.get("data"), dict)
+                 or item["data"].get("version") not in VERSIONS
+                 or item["data"]["version"] == version]
+    chosen, errors = validate_all(items, versions)
+    metrics = write_report(items, chosen, errors, Path(output_dir), versions)
+    print(f"Reporter checks: {metrics['reporter_checks']}; full-matrix outcome: {metrics['outcome']}")
+    if version and not errors:
+        print_pairs(chosen[version]["data"])
     return 0 if not errors else 1
 
 
@@ -354,7 +436,7 @@ def fake_result(version, controls=False):
         cells.append({"ceiling": ceiling, "replicate": replicate, "block_medians": pair, "samples": samples, "took_ms": [int(pair[0])] * 100 + [int(pair[1])] * 100,
                       "result_hash": "same-result", "identity": {"version": {"number": version, "lucene_version": "9.12.1"}, "jvm": {"version": "21"}, "image": {"digest": "sha256:x"}},
                       "layout_before": {}, "layout_after": {}, "cleanup": "clean"})
-    return {"schema": 1, "version": version, "source_sha": "source", "run_url": "https://example.invalid/run", "parameters": {"docs": 198000, "shards": 18, "heap": "2g", "samples": 100}, "query": {"query": {"match_all": {}}}, "status": "valid", "error": None, "cells": cells}
+    return {"schema": 1, "version": version, "source_sha": "source", "run_url": "https://example.invalid/run", "parameters": {"docs": 198000, "shards": 18, "heap": "2g", "samples": 100, "block_warmups": 100, "chunk": 5000, "max_seconds": 780}, "query": {"query": {"match_all": {}}}, "status": "valid", "error": None, "cells": cells}
 
 
 def self_test():
@@ -384,11 +466,13 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", default="artifacts")
     parser.add_argument("--output", default="results")
+    parser.add_argument("--version", choices=VERSIONS,
+                        help="report one version's pairs without a full-matrix verdict")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)
     if args.self_test:
         return self_test()
-    return run(args.input, args.output)
+    return run(args.input, args.output, args.version)
 
 
 if __name__ == "__main__":
