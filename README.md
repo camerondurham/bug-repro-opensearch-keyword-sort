@@ -1,6 +1,18 @@
 # OpenSearch keyword-sort latency regression
 
-> **Temporary 3.0.0 trial branch:** [frozen scope and image identity](TRIAL-3X.md). The findings and charts below remain the original four-version run; the new trial is separate and does not publish to `main`.
+> **Temporary 3.0.0 trial branch:** [scope, identities and verified results](TRIAL-3X.md). Nothing has been merged or published to `main`.
+
+## New trial: OpenSearch 3.0.0 / Lucene 10.1.0
+
+**The setting-sensitive slowdown persists:** client latency **101.0 → 40.9 ms**, with **2.462× / 2.473×** speedups in the opposite-order pairs. Server `took`: **96.1 → 35.3 ms**, **2.725× / 2.729×**. Same fixture/query/ABBA and safety checks; all four cells valid, 800 measured requests, cleanup recorded clean.
+
+![3.0.0 client latency: baseline 1024 versus control 128](trial-results/3.0.0/matrix.svg)
+
+[Trial run](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36333617456) · [paired client/server summary](trial-results/3.0.0/summary.md) · [every request](trial-results/3.0.0/requests.svg) · [raw evidence](trial-results/3.0.0/raw/3.0.0.json).
+
+Absolute client medians are 36–38% above the historical 2.19 run, but **different hosted VMs/software make that an uncontrolled cross-run comparison**, not proof of a 3.x version regression. This tests 3.0.0 only, not all 3.x versions. Single-version reporting deliberately issues no full-matrix verdict. Offline replay: `python3 report.py --input trial-results/3.0.0/raw --version 3.0.0 --output local-report`.
+
+## Historical four-version finding (unchanged)
 
 **Finding:** in the [retained GitHub Actions run](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36327603776), lowering `indices.query.bool.max_clause_count` from **1024 to 128** sped up the same sorted query by **2.75× on 2.12.0** and **2.36–2.65× on 2.19.0**, across both opposite-order pairs. Negative controls **1.3.20 and 2.11.1 stayed near 1×**. The query contains only one term filter.
 

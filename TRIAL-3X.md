@@ -22,4 +22,33 @@ The runner's only change is a new supported release/Lucene identity and image di
 
 Report both paired client wall and server `took` medians and ratios, regardless of effect direction or size. No 3.x reproduction threshold is pre-assigned; single-version outcome remains `NOT_ASSESSED`. Compare descriptively with retained [2.x measurements](results/summary.md), explicitly noting different run/VM/JDK/Lucene/segment layouts across releases. Within-3.0.0 clause-ceiling pairs are the controlled comparison; a speedup or null does not prove a specific Lucene commit caused the change.
 
-The measured source SHA and run URL will be retained in the raw result. Reports/artifacts go to `trial-results/3.0.0/`, never historical `results/`. Results pending; no performance claim before successful live validation.
+The measured source SHA and run URL are retained in the raw result. Reports/artifacts go to `trial-results/3.0.0/`, never historical `results/`. The generated summary's `main/results` provenance link refers to the historical matrix, not this trial; use the trial links below.
+
+## Completed measurement
+
+[Actions run 36333617456](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36333617456) **succeeded**; measured source `3ad7ec783acd769c828d79b7aeb51b7be855b1d8`. Benchmark elapsed **299.781 s**, including pull/setup/four fresh cells/cleanup. Bundled JVM: **21.0.7**. No retry or additional benchmark launched.
+
+| Pair (order) | Client 1024 / 128 (ms) | Client ratio | Server `took` 1024 / 128 (ms) | Server ratio |
+|---|---:|---:|---:|---:|
+| 1 (1024→128) | 101.592 / 41.269 | 2.462× | 96.750 / 35.500 | 2.725× |
+| 2 (128→1024) | 100.408 / 40.594 | 2.473× | 95.500 / 35.000 | 2.729× |
+
+**Finding:** the setting-sensitive slowdown persists in **3.0.0** on this fixture. Lowering the ceiling reduces client latency by approximately **59.4–59.6%** in both orders; server time corroborates. This is descriptive paired evidence, not a new full-matrix verdict or a conclusion about every 3.x release.
+
+### Historical comparison—not a contemporaneous version experiment
+
+| Version/run | Client 1024 median (ms) | Client 128 median (ms) | Paired speedups |
+|---|---:|---:|---|
+| 2.19.0 / 36327603776 | 74.260 | 29.598 | 2.654×, 2.363× |
+| 3.0.0 / 36333617456 | 101.000 | 40.931 | 2.462×, 2.473× |
+
+Each setting's table value is the median across its two cell values. The new absolute medians are **36.0% higher at 1024** and **38.3% higher at 128** than the retained 2.19 run. Different hosted VMs, bundled software and independently built indexes confound that comparison: **do not call this a measured 3.x version regression**. The within-3.0.0 setting effect is the controlled finding.
+
+### Evidence verification
+
+- [Raw result](trial-results/3.0.0/raw/3.0.0.json), SHA-256 `4a6c43c4f28c2a617d73a2483d2967dcd9173441054f5819c3e2e9c41de7436e`.
+- [Paired summary](trial-results/3.0.0/summary.md), [cell chart](trial-results/3.0.0/matrix.svg), [all 800 measured requests](trial-results/3.0.0/requests.svg), [standalone HTML](trial-results/3.0.0/report.html).
+- Parent checked frozen source/query/parameters, four distinct container IDs in ABBA order, exact OpenSearch build/Lucene/image identity, oracle hash independently reconstructed from the fixture, stable before/after layouts and equal rebuilt segment shapes, all four recorded `cleanup=clean` markers, and the 780-second bound.
+- Independently recomputed every client/server block and paired median from raw arrays. Raw benchmark JSON equals the visual artifact's raw JSON byte-for-byte. Offline CLI regeneration reproduces every visual artifact byte-for-byte; request SVG contains 800 measured points.
+- These checks verify retained evidence. They do not recontact the hosted engine or independently certify its teardown or each response body; the frozen runner performed those live checks.
+- Ten offline tests and existing reporter self-tests passed before launch. Historical raw/results and `main` are unchanged. Trial code/evidence remain only on `trial/opensearch-3.0.0` pending user review.

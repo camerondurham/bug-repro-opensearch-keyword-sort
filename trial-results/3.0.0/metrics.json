@@ -1,0 +1,41 @@
+{
+  "errors": [],
+  "outcome": "NOT_ASSESSED",
+  "pair_ratios": {
+    "3.0.0": [
+      {
+        "ceiling_128": 41.26887724999051,
+        "default": 101.59158025000892,
+        "ratio": 2.4616996395275637
+      },
+      {
+        "ceiling_128": 40.594019749988774,
+        "default": 100.40760299999363,
+        "ratio": 2.473458002395079
+      }
+    ]
+  },
+  "reporter_checks": "PASS",
+  "runner_status": {
+    "3.0.0": "valid"
+  },
+  "schema": 1,
+  "server_took_pair_ratios": {
+    "3.0.0": [
+      {
+        "ceiling_128": 35.5,
+        "default": 96.75,
+        "ratio": 2.7253521126760565
+      },
+      {
+        "ceiling_128": 35.0,
+        "default": 95.5,
+        "ratio": 2.7285714285714286
+      }
+    ]
+  },
+  "valid": true,
+  "versions": [
+    "3.0.0"
+  ]
+}
