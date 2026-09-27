@@ -15,13 +15,8 @@ import xml.etree.ElementTree as ET
 import report
 
 ROOT = Path(__file__).resolve().parent
-# Fixed expected ratios from measured source 4ad6043 / publication 3d8ed06.
-PUBLISHED_RATIOS = {
-    "1.3.20": [1.0034943171811455, 1.0293235019424254],
-    "2.11.1": [1.0216281939049545, 0.9546688764085531],
-    "2.12.0": [2.745573952499589, 2.7451876722384116],
-    "2.19.0": [2.654150825693497, 2.3628116185487156],
-}
+# Compare raw replay with its committed numerical snapshot, including after a new run.
+PUBLISHED = json.loads((ROOT / "results/metrics.json").read_text())
 
 
 class ReportTests(unittest.TestCase):
@@ -45,13 +40,14 @@ class ReportTests(unittest.TestCase):
         raw = output / "raw"
         shutil.copytree(ROOT / "results/raw", raw)
         before = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in raw.glob("*.json")}
+        selection = ["--historical-matrix"] if PUBLISHED["versions"] == list(report.HISTORICAL_VERSIONS) else []
         for input_path in (raw, output):
-            code, _ = self.run_cli("--input", str(input_path), "--output", str(output))
+            code, _ = self.run_cli("--input", str(input_path), "--output", str(output), *selection)
             self.assertEqual(code, 0)
             metrics = json.loads((output / "metrics.json").read_text())
-            self.assertEqual(metrics["outcome"], "REPRODUCED")
-            for version, expected in PUBLISHED_RATIOS.items():
-                self.assertEqual([p["ratio"] for p in metrics["pair_ratios"][version]], expected)
+            self.assertEqual(metrics["outcome"], PUBLISHED["outcome"])
+            self.assertEqual(metrics["pair_ratios"], PUBLISHED["pair_ratios"])
+            for version in PUBLISHED["versions"]:
                 record = json.loads((raw / f"{version}.json").read_text())
                 # Independently recompute server cell medians from original arrays.
                 cell_took = [statistics.median([statistics.median(c["took_ms"][:100]),
@@ -61,7 +57,7 @@ class ReportTests(unittest.TestCase):
                     self.assertEqual(pair, {"default": cell_took[a], "ceiling_128": cell_took[b],
                                             "ratio": cell_took[a] / cell_took[b]})
             points = ET.parse(output / "requests.svg").findall(".//{http://www.w3.org/2000/svg}circle")
-            self.assertEqual(len(points), 3200)
+            self.assertEqual(len(points), 800 * len(PUBLISHED["versions"]))
             summary = (output / "summary.md").read_text()
             self.assertIn("Server `took`", summary)
             self.assertIn("cannot independently replay the response oracle", summary)
@@ -73,8 +69,8 @@ class ReportTests(unittest.TestCase):
         output = self.root / "single"
         code, text = self.run_cli("--input", str(source), "--output", str(output), "--version", "2.19.0")
         self.assertEqual(code, 0)
-        self.assertIn("pair 1: client 2.654×", text)
-        self.assertIn("pair 2: client 2.363×", text)
+        for n, pair in enumerate(PUBLISHED["pair_ratios"]["2.19.0"], 1):
+            self.assertIn(f"pair {n}: client {pair['ratio']:.3f}×", text)
         self.assertIn("server took", text)
         self.assertNotIn("REPRODUCED", text)
         metrics = json.loads((output / "metrics.json").read_text())
@@ -82,6 +78,35 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(metrics["versions"], ["2.19.0"])
         # Default full-matrix reporting still rejects an incomplete Actions download.
         self.assertEqual(self.run_cli("--input", str(source), "--output", str(output))[0], 1)
+
+    def test_latest_release_is_required_but_not_presumed_affected(self):
+        import repro
+        self.assertEqual(tuple(repro.VERSIONS), report.VERSIONS)
+        self.assertEqual(set(repro.IMAGE_DIGESTS), set(report.VERSIONS))
+        self.assertEqual(repro.VERSIONS["3.8.0"], "10.5.0")
+        self.assertNotIn("3.0.0", report.VERSIONS)
+        workflow = (ROOT / ".github/workflows/reproduce.yml").read_text()
+        self.assertIn("version: " + repr(list(report.VERSIONS)), workflow)
+        inputs = self.root / "inputs"
+        for version in report.VERSIONS:
+            path = inputs / version / "result.json"
+            path.parent.mkdir(parents=True)
+            # A null latest-release effect must not change the historical-boundary verdict.
+            record = report.fake_result(version, controls=version in ("1.3.20", "2.11.1", "3.8.0"))
+            path.write_text(json.dumps(record))
+        output = self.root / "matrix"
+        self.assertEqual(self.run_cli("--input", str(inputs), "--output", str(output))[0], 0)
+        metrics = json.loads((output / "metrics.json").read_text())
+        self.assertEqual(metrics["versions"], list(report.VERSIONS))
+        self.assertEqual(metrics["outcome"], "REPRODUCED")
+        self.assertEqual(metrics["outcome_scope"], "historical_1.x_2.x_boundary")
+        self.assertEqual(len(ET.parse(output / "requests.svg").findall(".//{http://www.w3.org/2000/svg}circle")), 4000)
+        code, text = self.run_cli("--input", str(inputs), "--output", str(output), "--version", "3.8.0")
+        self.assertEqual(code, 0)
+        self.assertIn("NOT_ASSESSED", text)
+        (inputs / "3.8.0/result.json").unlink()
+        self.assertEqual(self.run_cli("--input", str(inputs), "--output", str(output))[0], 1)
+        self.assertEqual(self.run_cli("--input", str(inputs), "--output", str(output), "--historical-matrix")[0], 0)
 
     def test_nondefault_runner_parameters_and_zero_took(self):
         record = report.fake_result("2.19.0")

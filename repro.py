@@ -23,12 +23,14 @@ import urllib.error
 import urllib.request
 import uuid
 
-VERSIONS = {"1.3.20": "8.10.1", "2.11.1": "9.7.0", "2.12.0": "9.9.2", "2.19.0": "9.12.1"}
+VERSIONS = {"1.3.20": "8.10.1", "2.11.1": "9.7.0", "2.12.0": "9.9.2", "2.19.0": "9.12.1",
+            "3.8.0": "10.5.0"}
 IMAGE_DIGESTS = {
     "1.3.20": "7c544a7cb02753c5bb43138c7a499b0e597256c90d8a9dd390c976e58516c92e",
     "2.11.1": "512d52a7a21c990f7dc3c6e4264aa61cbae6ead7a167425438858d86628e70ac",
     "2.12.0": "40a130ec32fa38613761ed3b84fd8d7051f267cda2ab12667b649f58f22e9218",
     "2.19.0": "c9345304e5bec78255a08573457f724eaea99f723d7c454e6131b473b4acd290",
+    "3.8.0": "68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0",
 }
 INDEX, PAGE_SIZE, MULTIPLIER = "prune-repro", 250, 104729
 SETTING = "indices.query.bool.max_clause_count"

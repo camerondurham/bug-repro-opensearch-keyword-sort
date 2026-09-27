@@ -11,7 +11,8 @@ import statistics
 import tempfile
 from pathlib import Path
 
-VERSIONS = ("1.3.20", "2.11.1", "2.12.0", "2.19.0")
+HISTORICAL_VERSIONS = ("1.3.20", "2.11.1", "2.12.0", "2.19.0")
+VERSIONS = (*HISTORICAL_VERSIONS, "3.8.0")
 ORDER = ((1024, 1), (128, 1), (128, 2), (1024, 2))
 COLORS = {1024: "#d95f02", 128: "#1b75bc"}
 
@@ -317,7 +318,7 @@ def summary_and_metrics(chosen, errors, versions=VERSIONS):
         if item and not item.get("errors"):
             ratios[version] = pair_info(item["data"])
             server[version] = pair_info(item["data"], "took_ms")
-    full_matrix = tuple(versions) == VERSIONS and len(chosen) == len(VERSIONS)
+    full_matrix = tuple(versions) in (VERSIONS, HISTORICAL_VERSIONS) and len(chosen) == len(versions)
     reproduced = valid and full_matrix and all(r["ratio"] >= 1.25 for v in ("2.12.0", "2.19.0") for r in ratios[v]) and all(
         0.8 <= r["ratio"] <= 1.25 for v in ("1.3.20", "2.11.1") for r in ratios[v])
     outcome = ("INVALID_EVIDENCE" if not valid else "NOT_ASSESSED" if not full_matrix else
@@ -325,7 +326,8 @@ def summary_and_metrics(chosen, errors, versions=VERSIONS):
     lines = ["# Keyword sort latency report", "",
              "**Runner validation (recorded):** " + ", ".join(f"{v}={runner_status.get(v, 'missing')}" for v in versions),
              f"**Reporter evidence checks / recomputation:** {'PASS' if valid else 'FAIL'}",
-             f"**Full-matrix performance outcome:** **{outcome}**", "",
+             f"**Historical-boundary performance outcome:** **{outcome}**", "",
+             "Reported releases: " + ", ".join(versions) + ".", "",
              "Cell values are medians of two block medians, recomputed from the retained samples. "
              "Tables show the median across pairs, then each pair's cell value in parentheses. "
              "Ratios are 1024 / 128 in the two opposite orders."]
@@ -351,7 +353,9 @@ def summary_and_metrics(chosen, errors, versions=VERSIONS):
         lines += [f"- [Exact benchmark source]({repo_url}/tree/{first['source_sha']})",
                   f"- [Published charts and raw data]({repo_url}/tree/main/results)"]
     lines += ["", "[Matrix chart](matrix.svg) · [Every request](requests.svg) · [Offline HTML report](report.html)",
-              "", "Reproduction rule: both affected-release pairs ≥1.25×, both negative-control pairs within [0.80, 1.25]. Validity and this descriptive performance rule are separate.",
+              "", "Historical-boundary rule: both 2.12.0/2.19.0 pairs ≥1.25×, both 1.3.20/2.11.1 pairs within [0.80, 1.25]. "
+              "3.8.0 is measured descriptively, not assumed affected or used to decide that historical verdict. "
+              "Default matrix validity requires all five releases; explicit historical replay requires the original four.",
               "", "## Runner validation versus reporter recomputation", "",
               "- The runner performed live response-oracle, settings, index-state, identity and owned-cleanup checks. "
               "Its `status`, hashes, identity/layout snapshots and cleanup markers are retained claims.",
@@ -364,7 +368,7 @@ def summary_and_metrics(chosen, errors, versions=VERSIONS):
               "", "### Reporter findings", ""]
     lines += [f"- {e}" for e in errors] or ["- Retained evidence checks and timing recomputation passed."]
     if not full_matrix:
-        lines += ["- No full-matrix verdict: all four releases are required; paired single-version results are descriptive."]
+        lines += ["- No historical-boundary verdict: paired single-version results are descriptive."]
     if first and isinstance(first.get("parameters"), dict):
         lines += ["", "Recorded parameters: `" + json.dumps(first["parameters"], sort_keys=True) + "`."]
     lines += ["", "## Limitations", "", "- Bundled JDK versions and hosted VMs are confounded across releases.",
@@ -375,7 +379,8 @@ def summary_and_metrics(chosen, errors, versions=VERSIONS):
               "- The 128 setting also limits Boolean/expanded queries; it is not blanket production advice.", ""]
     metrics = {"schema": 1, "versions": list(versions), "valid": valid, "outcome": outcome,
                "errors": errors, "pair_ratios": ratios, "server_took_pair_ratios": server,
-               "runner_status": runner_status, "reporter_checks": "PASS" if valid else "FAIL"}
+               "runner_status": runner_status, "reporter_checks": "PASS" if valid else "FAIL",
+               "outcome_scope": "historical_1.x_2.x_boundary"}
     return "\n".join(lines), metrics
 
 
@@ -413,8 +418,8 @@ def write_report(items, chosen, errors, output, versions=VERSIONS):
     return metrics
 
 
-def run(input_dir, output_dir, version=None):
-    versions = (version,) if version else VERSIONS
+def run(input_dir, output_dir, version=None, historical_matrix=False):
+    versions = (version,) if version else HISTORICAL_VERSIONS if historical_matrix else VERSIONS
     items = read_results(Path(input_dir))
     if version:
         items = [item for item in items if not isinstance(item.get("data"), dict)
@@ -422,7 +427,7 @@ def run(input_dir, output_dir, version=None):
                  or item["data"]["version"] == version]
     chosen, errors = validate_all(items, versions)
     metrics = write_report(items, chosen, errors, Path(output_dir), versions)
-    print(f"Reporter checks: {metrics['reporter_checks']}; full-matrix outcome: {metrics['outcome']}")
+    print(f"Reporter checks: {metrics['reporter_checks']}; historical-boundary outcome: {metrics['outcome']}")
     if version and not errors:
         print_pairs(chosen[version]["data"])
     return 0 if not errors else 1
@@ -466,13 +471,16 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", default="artifacts")
     parser.add_argument("--output", default="results")
-    parser.add_argument("--version", choices=VERSIONS,
-                        help="report one version's pairs without a full-matrix verdict")
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--version", choices=VERSIONS,
+                           help="report one version's pairs without a matrix verdict")
+    selection.add_argument("--historical-matrix", action="store_true",
+                           help="explicitly replay the original four-release evidence, without 3.8.0")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)
     if args.self_test:
         return self_test()
-    return run(args.input, args.output, args.version)
+    return run(args.input, args.output, args.version, args.historical_matrix)
 
 
 if __name__ == "__main__":
