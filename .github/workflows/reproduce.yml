@@ -3,6 +3,15 @@ name: Reproduce keyword-sort latency
 # Deliberately manual: no scheduled spending or push-triggered benchmark loops.
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Run one parallel matrix or three full matrices, one per fresh hosted VM
+        required: true
+        type: choice
+        options:
+          - parallel
+          - repeated
+        default: parallel
 
 permissions:
   contents: read
@@ -13,6 +22,7 @@ concurrency:
 
 jobs:
   benchmark:
+    if: inputs.mode == 'parallel'
     name: OpenSearch ${{ matrix.version }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -43,7 +53,7 @@ jobs:
   report:
     name: Validate and publish charts
     needs: benchmark
-    if: always()
+    if: always() && inputs.mode == 'parallel'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
@@ -87,3 +97,87 @@ jobs:
           git commit -m "Publish measured latency charts (${GITHUB_RUN_ID})" -m "Source: ${SOURCE_SHA}" -m "Run: ${RUN_URL}"
           git push origin HEAD:main
           echo "Charts and raw evidence: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/main/results" >> "$GITHUB_STEP_SUMMARY"
+
+  repeated:
+    if: inputs.mode == 'repeated'
+    name: Repeated matrix ${{ matrix.repetition }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        repetition: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Prepare isolated runner
+        run: |
+          sudo sysctl -w vm.max_map_count=262144
+          python3 --version
+          docker --version
+          free -h
+          df -h /
+      - name: Retain host identity for cross-VM comparison
+        run: |
+          mkdir artifacts
+          {
+            uname -a
+            lscpu
+            free -h
+            docker info --format 'Docker={{.ServerVersion}} CPUs={{.NCPU}} Memory={{.MemTotal}} Cgroups={{.CgroupVersion}}'
+          } > artifacts/host.txt
+      - name: Measure five versions sequentially
+        run: |
+          set -euo pipefail
+          case "${{ matrix.repetition }}" in
+            1) versions=(1.3.20 2.11.1 2.12.0 2.19.0 3.8.0) ;;
+            2) versions=(3.8.0 2.19.0 2.12.0 2.11.1 1.3.20) ;;
+            3) versions=(2.12.0 2.19.0 3.8.0 1.3.20 2.11.1) ;;
+            *) echo "Unexpected repetition: ${{ matrix.repetition }}" >&2; exit 2 ;;
+          esac
+          for version in "${versions[@]}"; do
+            python3 repro.py --version "$version" --output "artifacts/$version" --max-seconds 780
+          done
+      - name: Retain raw measurements even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: benchmark-repetition-${{ matrix.repetition }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+  repeated-report:
+    name: Validate repeated matrices and draw comparison
+    needs: repeated
+    if: always() && inputs.mode == 'repeated'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: benchmark-repetition-*
+          path: artifacts
+      - name: Validate each matrix and draw comparison
+        run: python3 report.py --compare repetition-1=artifacts/benchmark-repetition-1 repetition-2=artifacts/benchmark-repetition-2 repetition-3=artifacts/benchmark-repetition-3 --output repeated-results
+      - name: Actions summary
+        if: always()
+        run: |
+          if [ -f repeated-results/summary.md ]; then
+            cat repeated-results/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'No complete repeated report: inspect failed repetition jobs.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Retain standalone repeated visual report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: repeated-visual-report
+          path: repeated-results/
+          if-no-files-found: error
+          retention-days: 30
+      # Repeated mode never publishes to results/: that directory remains the single-matrix schema.

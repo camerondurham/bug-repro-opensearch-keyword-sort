@@ -6,6 +6,7 @@ import argparse
 import html
 import json
 import math
+import re
 import shutil
 import statistics
 import tempfile
@@ -444,6 +445,163 @@ def fake_result(version, controls=False):
     return {"schema": 1, "version": version, "source_sha": "source", "run_url": "https://example.invalid/run", "parameters": {"docs": 198000, "shards": 18, "heap": "2g", "samples": 100, "block_warmups": 100, "chunk": 5000, "max_seconds": 780}, "query": {"query": {"match_all": {}}}, "status": "valid", "error": None, "cells": cells}
 
 
+def spread(values):
+    middle = med(values)
+    return {"min": min(values), "median": middle, "max": max(values),
+            "relative_range": (max(values) - min(values)) / middle if middle else None}
+
+
+def comparison_svg(datasets, reference, latency=False):
+    labels = list(datasets)
+    colors = {label: ("#666666" if label == reference else
+                     ("#0072b2", "#d55e00", "#009e73", "#cc79a7", "#56b4e9", "#e69f00")[i])
+              for i, label in enumerate(labels)}
+    fields = ("default", "ceiling_128") if latency else ("ratio",)
+    height = 100 + 390 * len(fields)
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 {height}">',
+             '<rect width="1240" height="100%" fill="white"/>',
+             svg_text(620, 25, "Client latency across matrices" if latency else "Paired speedups across matrices", 19, "middle", weight="bold"),
+             svg_text(620, 47, "Two points per dataset/version: fresh opposite-order pairs, not independent requests or confidence intervals", 12, "middle")]
+    for i, label in enumerate(labels):
+        x = 90 + i * 1120 / len(labels)
+        parts.append(svg_text(x, 70, label + (" (reference)" if label == reference else ""), 12, fill=colors[label]))
+    ymax = max(p[f] for d in datasets.values() for ps in d["pair_ratios"].values()
+               for p in ps for f in fields) * 1.15
+    for panel, field in enumerate(fields):
+        top, bottom = 110 + panel * 390, 410 + panel * 390
+        label = {"ratio": "1024 / 128 speedup (×)", "default": "Ceiling 1024 — client ms", "ceiling_128": "Ceiling 128 — client ms"}[field]
+        parts.append(svg_text(90, top - 14, label, 13, weight="bold"))
+        for tick in range(5):
+            y = bottom - (bottom - top) * tick / 4
+            parts += [f'<path d="M90 {y:.2f} H1210" stroke="#ddd"/>',
+                      svg_text(80, y + 4, f"{ymax * tick / 4:.2f}", 11, "end")]
+        if field == "ratio":
+            y = bottom - (bottom - top) / ymax
+            parts.append(f'<path d="M90 {y:.2f} H1210" stroke="#777" stroke-dasharray="4,4"/>')
+        for vi, version in enumerate(VERSIONS):
+            group = 1120 / len(VERSIONS)
+            parts.append(svg_text(90 + (vi + .5) * group, bottom + 24, version, 13, "middle", weight="bold"))
+            for di, name in enumerate(labels):
+                x = 90 + vi * group + (di + .5) * group / len(labels)
+                for pi, pair in enumerate(datasets[name]["pair_ratios"][version]):
+                    value = pair[field]
+                    y = bottom - (bottom - top) * value / ymax
+                    parts.append(f'<circle cx="{x + (pi * 2 - 1) * 3:.2f}" cy="{y:.2f}" r="4" fill="{colors[name]}" fill-opacity=".8"><title>{esc(name)} {version} pair {pi + 1}: {value:.6f}</title></circle>')
+    parts.append('</svg>')
+    return "\n".join(parts)
+
+
+def compare_runs(entries, output_dir, reference=None):
+    """Compare whole validated matrices, never pool their request samples."""
+    output = Path(output_dir)
+    output.mkdir(parents=True, exist_ok=True)
+    errors, selected, datasets, seen = [], {}, {}, set()
+    reference_label = None
+    all_entries = list(entries) + ([reference] if reference else [])
+    if not 2 <= len(entries) <= 6 or len(all_entries) > 6:
+        errors.append("comparison requires 2–6 matrices, at most 6 including reference")
+    for entry in all_entries:
+        label, sep, path = entry.partition("=")
+        if not sep or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,47}", label) or label in selected:
+            errors.append(f"invalid or duplicate LABEL=INPUT: {entry}")
+            continue
+        if entry == reference:
+            reference_label = label
+        items = read_results(Path(path))
+        chosen, findings = validate_all(items)
+        selected[label] = (items, chosen)
+        errors.extend(f"{label}: {e}" for e in findings)
+        if findings:
+            continue
+        identity = tuple(items_v["path"].read_bytes() for items_v in chosen.values())
+        if identity in seen:
+            errors.append(f"{label}: duplicate evidence is not another repetition")
+        seen.add(identity)
+        _, metrics = summary_and_metrics(chosen, [])
+        first = chosen[VERSIONS[0]]["data"]
+        metrics.update(source_sha=first["source_sha"], run_url=first["run_url"], host=first.get("host"))
+        datasets[label] = metrics
+    if not errors:
+        first_chosen = next(iter(selected.values()))[1]
+        for label, (_, chosen) in selected.items():
+            for v in VERSIONS:
+                baseline, current = first_chosen[v]["data"], chosen[v]["data"]
+                for key in ("parameters", "query"):
+                    if baseline[key] != current[key]:
+                        errors.append(f"{label}/{v}: {key} differs across matrices")
+                def image_identity(cell):
+                    ident = cell["identity"]
+                    return (ident["version"]["number"], ident["version"]["lucene_version"],
+                            ident["image"].get("Id"), ident["image"].get("pinned_reference"))
+                expected = image_identity(baseline["cells"][0])
+                if not all(isinstance(x, str) and x for x in expected) or any(
+                        image_identity(c) != expected for c in current["cells"]):
+                    errors.append(f"{label}/{v}: missing or different frozen engine/image identity")
+                if any(c["result_hash"] != baseline["cells"][0]["result_hash"] for c in current["cells"]):
+                    errors.append(f"{label}/{v}: oracle hashes differ across matrices")
+    if errors:
+        (output / "summary.md").write_text("# Matrix comparison — INVALID\n\n" + "\n".join("- " + e for e in errors) + "\n")
+        (output / "comparison.json").write_text(json.dumps({"valid": False, "errors": errors}, indent=2) + "\n")
+        invalid = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 100">' + svg_text(20, 50, "INVALID comparison — see summary.md", 20) + '</svg>'
+        for name in ("ratios.svg", "latency.svg"):
+            (output / name).write_text(invalid)
+        (output / "report.html").write_text('<!doctype html><meta charset="utf-8"><pre>' + esc((output / "summary.md").read_text()) + '</pre>')
+        print("Comparison failed: " + "; ".join(errors))
+        return 1
+    for label, (items, chosen) in selected.items():
+        write_report(items, chosen, [], output / "datasets" / label)
+    repetitions = {k: v for k, v in datasets.items() if k != reference_label}
+    ranges = {}
+    for v in VERSIONS:
+        ranges[v] = {"paired_ratio": spread([p["ratio"] for d in repetitions.values() for p in d["pair_ratios"][v]])}
+        for key in ("default", "ceiling_128"):
+            ranges[v][key] = spread([med([p[key] for p in d["pair_ratios"][v]]) for d in repetitions.values()])
+        ranges[v]["spread_flag"] = (ranges[v]["paired_ratio"]["relative_range"] > .15 or
+                                    any(ranges[v][key]["relative_range"] > .20 for key in ("default", "ceiling_128")))
+    lines = ["# Whole-matrix repeatability comparison", "", "**Retained evidence checks: PASS.** No requests were pooled.",
+             "", f"Repetitions: {', '.join(repetitions)}. Reference: {reference_label or 'none'}.",
+             "A reference is displayed separately and excluded from repetition spreads. Dataset labels do not establish independent physical hosts.",
+             "", "## Client summaries by matrix", "", "| Version | Dataset | 1024 median ms | 128 median ms | Paired client speedups | Paired server `took` speedups |", "|---|---|---:|---:|---|---|"]
+    for v in VERSIONS:
+        for label, d in datasets.items():
+            ps = d["pair_ratios"][v]
+            lines.append(f"| {v} | [{label}](datasets/{label}/summary.md) | {med([p['default'] for p in ps]):.3f} | {med([p['ceiling_128'] for p in ps]):.3f} | " +
+                         ", ".join(ratio_text(p["ratio"]) for p in ps) + " | " +
+                         ", ".join(ratio_text(p["ratio"]) for p in d["server_took_pair_ratios"][v]) + " |")
+    lines += ["", "## Spread across repetitions (reference excluded)", "", "| Version | All paired ratios min / median / max | Ratio relative range | 1024 round-median relative range | 128 round-median relative range | Spread flag |", "|---|---|---:|---:|---:|---|"]
+    for v, r in ranges.items():
+        p = r["paired_ratio"]
+        lines.append(f"| {v} | {p['min']:.3f} / {p['median']:.3f} / {p['max']:.3f} | {p['relative_range']:.1%} | {r['default']['relative_range']:.1%} | {r['ceiling_128']['relative_range']:.1%} | {'YES' if r['spread_flag'] else 'no'} |")
+    lines += ["", "Relative range = (maximum − minimum) / median. Each setting's round value is the median of its two fresh-JVM cell summaries. Ratio spread includes both opposite-order pairs in every repetition.",
+              "Flags (>15% paired-ratio range or >20% setting round-median range) are descriptive diagnostics, **not validity gates or confidence intervals**. Keep every qualified observation, including outliers. Few repetitions do not estimate a host population.",
+              "", "## Block drift", "", "The following cells differ by more than 20% between their two client block medians. This does not identify the cause or invalidate the retained response/layout checks; it warns against assuming steady-state timing.", ""]
+    drift = []
+    for label, (_, chosen) in selected.items():
+        for v, item in chosen.items():
+            for i, cell in enumerate(item["data"]["cells"], 1):
+                a, b = cell["block_medians"]
+                if abs(b / a - 1) > .20:
+                    drift.append({"dataset": label, "version": v, "cell": i, "ceiling": cell["ceiling"], "blocks_ms": [a, b]})
+                    lines.append(f"- {label}, {v}, JVM {i}, ceiling {cell['ceiling']}: {a:.3f} → {b:.3f} ms ({b / a - 1:+.1%}).")
+    if not drift:
+        lines.append("- No cell exceeded this descriptive threshold; that is not proof of steady state.")
+    lines += ["", "## Provenance", ""]
+    for label, d in datasets.items():
+        lines.append(f"- {label}: source `{d['source_sha']}`, run `{d['run_url']}`; [raw records](datasets/{label}/raw).")
+    lines += ["", "[Paired ratios](ratios.svg) · [Absolute latency](latency.svg) · [Standalone HTML](report.html)", "",
+              "Engine/image identities, parameters, query and oracle hashes agree across datasets. Each matrix is separately validated; source/run provenance may differ. Source equality, live responses, host isolation, warmup sufficiency and actual cleanup are not independently certified by this offline comparison. Per-dataset reports preserve the runner/reporter evidence distinction.", ""]
+    summary = "\n".join(lines)
+    ratios, latency = comparison_svg(datasets, reference_label), comparison_svg(datasets, reference_label, latency=True)
+    (output / "ratios.svg").write_text(ratios)
+    (output / "latency.svg").write_text(latency)
+    (output / "summary.md").write_text(summary)
+    (output / "comparison.json").write_text(json.dumps({"schema": 1, "valid": True, "reference": reference_label,
+        "datasets": datasets, "repetition_spreads": ranges, "block_drift": drift}, indent=2) + "\n")
+    (output / "report.html").write_text('<!doctype html><meta charset="utf-8"><title>Matrix repeatability</title><style>body{font-family:sans-serif;max-width:1240px;margin:auto}svg{width:100%}pre{white-space:pre-wrap}</style>' + ratios + latency + '<pre>' + esc(summary) + '</pre>')
+    print(f"Comparison PASS: {len(repetitions)} repetitions; reference={reference_label or 'none'}; all observations retained.")
+    return 0
+
+
 def self_test():
     with tempfile.TemporaryDirectory(prefix="keyword-sort-report-") as td:
         root = Path(td)
@@ -474,12 +632,20 @@ def main(argv=None):
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument("--version", choices=VERSIONS,
                            help="report one version's pairs without a matrix verdict")
+    selection.add_argument("--compare", nargs="+", metavar="LABEL=INPUT",
+                           help="compare 2–6 complete five-version matrices without pooling requests")
+    parser.add_argument("--reference", metavar="LABEL=INPUT",
+                        help="optional separate comparison baseline, excluded from repetition spreads")
     selection.add_argument("--historical-matrix", action="store_true",
                            help="explicitly replay the original four-release evidence, without 3.8.0")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)
     if args.self_test:
         return self_test()
+    if args.reference and not args.compare:
+        parser.error("--reference requires --compare")
+    if args.compare:
+        return compare_runs(args.compare, args.output, args.reference)
     return run(args.input, args.output, args.version, args.historical_matrix)
 
 

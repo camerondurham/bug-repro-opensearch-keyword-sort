@@ -76,9 +76,56 @@ The reporter also accepts one JSON file, an Actions artifact tree, or `results/r
 
 **Reporter, offline:** recomputes client/server block medians and paired ratios from timing arrays, checks recorded client medians against samples, sample counts against parameters, ABBA labels, recorded version metadata, status/cleanup markers and matching result hashes/parameters. It cannot independently replay the response oracle or certify actual settings, index state or cleanup: full response bodies and every live readback are **not retained**. Runner validation is a recorded claim; reporter recomputation is an evidence check, **not a new experiment**. Provenance always points to the original measured source/run, even when a newer reporter regenerates the presentation.
 
+## Repeatability and host variation
+
+[Three complete local repetitions versus GitHub](comparisons/local-vs-actions-20260927/FINDINGS.md) are retained: **15 invocations, 60 JVMs, 12,000 measured requests** on one Ryzen 7800X3D/WSL2 host. The same standalone runner was used—no lab framework dependency.
+
+- **3.8.0 was stable locally:** all six paired speedups **2.267–2.320×**, versus **2.047–2.059×** on GitHub. Local absolute timings were much lower; don't transfer absolute milliseconds across hosts.
+- **2.19.0 was not stable in magnitude:** **2.844–6.475×**. One default-setting JVM's client block medians fell **67.684 → 21.189 ms**, with server timing corroboration. The outlier is retained. Existing warmups do not prove steady-state timing; these records cannot identify the transient's cause.
+- The qualitative effect persists, but extra repetitions are useful for reliability claims. Three runs on one WSL2 host do not estimate variation across the GitHub fleet. [All paired ratios](comparisons/local-vs-actions-20260927/ratios.svg) · [absolute timings](comparisons/local-vs-actions-20260927/latency.svg) · [replay command and interpretation](comparisons/local-vs-actions-20260927/FINDINGS.md).
+
+To run the same three full matrices locally, on an otherwise quiet host (up to 15 × 780 seconds, no automatic retries):
+
+```bash
+(
+  set -euo pipefail
+  test -z "$(git status --porcelain --untracked-files=no)"
+  export GITHUB_SHA="$(git rev-parse HEAD)"  # record the actual clean local source
+  unset GITHUB_RUN_ID GITHUB_REPOSITORY     # do not invent an Actions run URL
+  mkdir -p artifacts
+  root=artifacts/local-matrices
+  mkdir "$root"                           # must be a new batch
+  for repetition in 1 2 3; do
+    case "$repetition" in
+      1) versions='1.3.20 2.11.1 2.12.0 2.19.0 3.8.0' ;;
+      2) versions='3.8.0 2.19.0 2.12.0 2.11.1 1.3.20' ;;
+      3) versions='2.12.0 2.19.0 3.8.0 1.3.20 2.11.1' ;;
+    esac
+    for version in $versions; do
+      python3 repro.py --version "$version" \
+        --output "$root/rep-$repetition/$version" --max-seconds 780
+    done
+  done
+  python3 report.py --compare \
+    local-1="$root/rep-1" local-2="$root/rep-2" local-3="$root/rep-3" \
+    --reference actions=results/raw --output local-report/comparison
+)
+```
+
+Don't change source or run competing workloads during the batch. The runner acquires its shared lock itself; do not wrap it in a second acquisition of that lock. The comparison validates each whole matrix, rejects duplicate/mismatched evidence, and keeps the reference separate from repetition spreads. Open `local-report/comparison/report.html`. This is still Python standard library + Docker; Git in the snippet only records source provenance.
+
 ## GitHub Actions and offline checks
 
-[Workflow](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/workflows/reproduce.yml): manual dispatch only, five isolated version jobs capped at 15 minutes each, then a 5-minute report job. No schedule, push-triggered benchmarks, or automatic retries. Complete reports publish to `results/`; raw artifacts and the self-contained HTML report are downloadable for 30 days, while committed evidence remains in Git history. A green workflow means accepted evidence and publication, **not necessarily `REPRODUCED`**. Private-repo collaborators need explicit access.
+[Workflow](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/workflows/reproduce.yml), manual dispatch only:
+
+| Mode | Execution | Results |
+|---|---|---|
+| `parallel` (default) | Five isolated version jobs, 15-minute caps; 5-minute reporter | Existing single-matrix charts/raw publish to `results/` |
+| `repeated` (opt-in) | Three fresh hosted VMs; each runs all five versions sequentially in varied order, preserving per-version ABBA and 780-second caps. 70-minute matrix-job caps; 5-minute reporter | Individual matrices, all pairs, spread/drift diagnostics and comparison graphs in `repeated-visual-report`; **does not overwrite `results/`** |
+
+Repeated mode permits same-VM version comparisons and three hosted matrix repetitions. It retains host facts in each benchmark artifact. It costs roughly three times the benchmark work, so remains optional. **The new mode is offline-checked, not yet live-validated on GitHub.**
+
+No schedules, push-triggered benchmarks, or automatic retries. A failed version stops its matrix; independent hosted jobs can finish, and missing/invalid evidence fails reporting. Artifacts are downloadable for 30 days; committed evidence remains in Git history. A green workflow means accepted evidence, **not necessarily `REPRODUCED`**. Private-repo collaborators need explicit access.
 
 Existing runner checks, reporter self-checks, and committed-raw replay coverage all run without Docker or network access:
 

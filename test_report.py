@@ -108,6 +108,50 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(self.run_cli("--input", str(inputs), "--output", str(output))[0], 1)
         self.assertEqual(self.run_cli("--input", str(inputs), "--output", str(output), "--historical-matrix")[0], 0)
 
+    def comparison_fixture(self, label, factor=1):
+        root = self.root / label
+        for version in report.VERSIONS:
+            d = report.fake_result(version)
+            d["source_sha"] = "source-" + label
+            for cell in d["cells"]:
+                cell["identity"]["image"].update(Id="fake-image-" + version, pinned_reference="fake-pin-" + version)
+                if cell["ceiling"] == 1024:
+                    cell["samples"] = [x * factor for x in cell["samples"]]
+                    cell["block_medians"] = [x * factor for x in cell["block_medians"]]
+            path = root / version / "result.json"
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps(d))
+        return root
+
+    def test_comparison_keeps_reference_and_raw_matrices_separate(self):
+        a, b, baseline = (self.comparison_fixture("a"), self.comparison_fixture("b", 1.1),
+                          self.comparison_fixture("baseline", 5))
+        output = self.root / "comparison"
+        code, _ = self.run_cli("--compare", f"a={a}", f"b={b}", "--reference", f"hosted={baseline}", "--output", str(output))
+        self.assertEqual(code, 0)
+        d = json.loads((output / "comparison.json").read_text())
+        self.assertTrue(d["valid"])
+        self.assertEqual(d["reference"], "hosted")
+        self.assertAlmostEqual(d["repetition_spreads"]["2.12.0"]["paired_ratio"]["max"], 1.65)
+        self.assertEqual(len(ET.parse(output / "ratios.svg").findall(".//{http://www.w3.org/2000/svg}circle")), 30)
+        self.assertEqual((output / "datasets/a/raw/3.8.0.json").read_bytes(), (a / "3.8.0/result.json").read_bytes())
+        self.assertIn("not validity gates", (output / "summary.md").read_text())
+
+    def test_comparison_rejects_duplicate_missing_and_mismatched_evidence(self):
+        a, b = self.comparison_fixture("a"), self.comparison_fixture("b")
+        output = self.root / "comparison"
+        self.assertEqual(self.run_cli("--compare", f"a={a}", f"b={a}", "--output", str(output))[0], 1)
+        self.assertEqual(self.run_cli("--compare", f"a={a}", f"b={b}", "--output", str(output))[0], 0)
+        path = b / "3.8.0/result.json"
+        d = json.loads(path.read_text())
+        d["cells"][0]["identity"]["image"]["Id"] = "different-image"
+        path.write_text(json.dumps(d))
+        self.assertEqual(self.run_cli("--compare", f"a={a}", f"b={b}", "--output", str(output))[0], 1)
+        self.assertIn("INVALID", (output / "report.html").read_text())
+        self.assertIn("INVALID", (output / "ratios.svg").read_text())
+        path.unlink()
+        self.assertEqual(self.run_cli("--compare", f"a={a}", f"b={b}", "--output", str(output))[0], 1)
+
     def test_nondefault_runner_parameters_and_zero_took(self):
         record = report.fake_result("2.19.0")
         record["parameters"].update(docs=1000, shards=1, heap="1g", samples=30,
