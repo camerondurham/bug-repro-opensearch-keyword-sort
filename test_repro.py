@@ -33,6 +33,13 @@ class ContractTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             repro.validate(response, 18)
 
+    def test_rebuilt_segment_shapes_ignore_names_not_document_counts(self):
+        a = {"segments": {"0": {"_0": {"num_docs": 100, "deleted_docs": 0}}}}
+        b = {"segments": {"0": {"_1": {"num_docs": 100, "deleted_docs": 0}}}}
+        self.assertEqual(repro.segment_shape(a), repro.segment_shape(b))
+        b["segments"]["0"]["_1"]["num_docs"] = 99
+        self.assertNotEqual(repro.segment_shape(a), repro.segment_shape(b))
+
     def test_settings_readback_required(self):
         with patch.object(repro, "http", return_value={"nodes": {"node": {"settings": {}}}}):
             with self.assertRaises(RuntimeError):

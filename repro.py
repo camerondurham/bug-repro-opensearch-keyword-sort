@@ -142,9 +142,16 @@ def layout(port):
     segments = http(port, "GET", f"/{INDEX}/_segments")["indices"][INDEX]["shards"]
     return {"docs": stats["docs"], "merges_total": stats["merges"]["total"],
             "merges_current": stats["merges"]["current"],
-            "segments": {shard: sorted(copy["segments"].keys())
+            "segments": {shard: {name: {key: segment[key] for key in ("num_docs", "deleted_docs")}
+                                 for name, segment in copy["segments"].items()}
                          for shard, copies in segments.items() for copy in copies
                          if copy["routing"]["primary"]}}
+
+
+def segment_shape(inventory):
+    """Compare rebuilt layouts without depending on per-index segment names."""
+    return {shard: sorted((s["num_docs"], s["deleted_docs"]) for s in segments.values())
+            for shard, segments in inventory["segments"].items()}
 
 
 def settings(port, ceiling):
@@ -292,6 +299,9 @@ def main():
                 raise RuntimeError("requires a digest-resolved linux/amd64 release image")
             for ceiling, replicate in ((1024, 1), (128, 1), (128, 2), (1024, 2)):
                 cell(args, image, ceiling, replicate, result)
+                if segment_shape(result["cells"][-1]["layout_after"]) != \
+                        segment_shape(result["cells"][0]["layout_after"]):
+                    raise RuntimeError("per-shard segment document/deletion shape differs across fresh cells")
             if len({c["result_hash"] for c in result["cells"]}) != 1:
                 raise RuntimeError("result mismatch across fresh JVMs")
             result["status"] = "valid"
