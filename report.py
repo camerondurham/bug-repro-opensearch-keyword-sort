@@ -218,7 +218,7 @@ def print_pairs(d):
 
 
 def render_matrix(chosen, versions=VERSIONS):
-    width, height, left, right, top, bottom = 1200, 560, 90, 1160, 70, 475
+    width, height, left, right, top, bottom = 1200, 560, 90, 1160, 100, 475
     values = []
     for v in versions:
         d = chosen.get(v, {}).get("data") if isinstance(chosen.get(v), dict) else None
@@ -226,8 +226,10 @@ def render_matrix(chosen, versions=VERSIONS):
             values.extend(cell_median(c) for c in d["cells"])
     ymax = max(values or [1]) * 1.25
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">',
-             '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 28, "Keyword sort latency by version and clause ceiling", 18, "middle", weight="bold"),
-             svg_text(600, 49, "Bars are pair medians; labels show both raw replicate medians (no population confidence interval)", 11, "middle", fill="#555")]
+             '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 28, "Boolean-clause ceiling changes keyword-sorted query latency", 18, "middle", weight="bold"),
+             svg_text(600, 48, "Client request latency; repeated first page.", 11, "middle", fill="#555"),
+             svg_text(600, 64, "Compare settings within each version; hosted VMs and bundled JDKs differ across versions.", 11, "middle", fill="#555"),
+             svg_text(600, 80, "Bars are pair medians; labels show both fresh-JVM summaries.", 11, "middle", fill="#555")]
     for tick in range(5):
         y = bottom - (bottom - top) * tick / 4
         value = ymax * tick / 4
@@ -259,8 +261,8 @@ def render_matrix(chosen, versions=VERSIONS):
 def render_requests(chosen, versions=VERSIONS):
     width, panel_h, height = 1200, 275, len(versions) * 275 + 45
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">',
-             '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 25, "All request samples by release", 18, "middle", weight="bold"),
-             svg_text(600, 45, "Each labeled JVM segment is a fresh container; dashed lines separate its two equal-sized measurement blocks", 11, "middle", fill="#555")]
+             '<rect width="100%" height="100%" fill="white"/>', svg_text(600, 25, "All measured requests by release", 18, "middle", weight="bold"),
+             svg_text(600, 45, "Fresh JVM in each segment; dashed lines separate its two measurement blocks", 11, "middle", fill="#555")]
     plot_left, plot_right = 90, 1160
     all_points = []
     for version in versions:
@@ -324,7 +326,7 @@ def summary_and_metrics(chosen, errors, versions=VERSIONS):
         0.8 <= r["ratio"] <= 1.25 for v in ("1.3.20", "2.11.1") for r in ratios[v])
     outcome = ("INVALID_EVIDENCE" if not valid else "NOT_ASSESSED" if not full_matrix else
                "REPRODUCED" if reproduced else "NOT_REPRODUCED")
-    lines = ["# Keyword sort latency report", "",
+    lines = ["# Boolean-clause ceiling changes keyword-sorted query latency", "",
              "**Runner validation (recorded):** " + ", ".join(f"{v}={runner_status.get(v, 'missing')}" for v in versions),
              f"**Reporter evidence checks / recomputation:** {'PASS' if valid else 'FAIL'}",
              f"**Historical-boundary performance outcome:** **{outcome}**", "",
@@ -412,9 +414,9 @@ def write_report(items, chosen, errors, output, versions=VERSIONS):
         rs = metrics["pair_ratios"].get(v, [])
         ratio_text = ", ".join(f"{r['ratio']:.3f}" for r in rs) or "unavailable"
         rows.append(f"<tr><td>{esc(v)}</td><td>{esc(state)}</td><td>{esc(ratio_text)}</td></tr>")
-    document = """<!doctype html><meta charset="utf-8"><title>Keyword sort report</title>
+    document = """<!doctype html><meta charset="utf-8"><title>Boolean-clause ceiling and keyword-sorted query latency</title>
 <style>body{font:14px sans-serif;max-width:1200px;margin:2em auto}svg{width:100%%;height:auto}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:.35em .7em}</style>
-<h1>Keyword sort latency report</h1><table><tr><th>Version</th><th>Reporter evidence checks</th><th>Client pair ratios (1024 / 128)</th></tr>%s</table><h2>Latency matrix</h2>%s<h2>Requests</h2>%s<pre>%s</pre>""" % ("".join(rows), matrix, requests, esc(summary))
+<h1>Boolean-clause ceiling changes keyword-sorted query latency</h1><table><tr><th>Version</th><th>Reporter evidence checks</th><th>Client pair ratios (1024 / 128)</th></tr>%s</table><h2>Latency matrix</h2>%s<h2>Requests</h2>%s<pre>%s</pre>""" % ("".join(rows), matrix, requests, esc(summary))
     (output / "report.html").write_text(document, encoding="utf-8")
     return metrics
 

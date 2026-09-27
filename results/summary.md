@@ -1,4 +1,4 @@
-# Keyword sort latency report
+# Boolean-clause ceiling changes keyword-sorted query latency
 
 **Runner validation (recorded):** 1.3.20=valid, 2.11.1=valid, 2.12.0=valid, 2.19.0=valid, 3.8.0=valid
 **Reporter evidence checks / recomputation:** PASS

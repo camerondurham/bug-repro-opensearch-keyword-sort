@@ -32,5 +32,13 @@
     "byte-identical copied raw and per-round reports",
     "comparison point counts40/80; per-round request points4000"
   ],
-  "limitations": "Retained record verification, not independent live engine/teardown certification. Only one local physical host/WSL2 boot; no Windows-side telemetry."
+  "limitations": "Retained record verification, not independent live engine/teardown certification. Only one local physical host/WSL2 boot; no Windows-side telemetry.",
+  "post_comparison_report_generation": {
+    "date": "2026-09-27",
+    "acts": [
+      "Regenerated results/ charts from committed results/raw after retitling report.py charts; copied raw records to results/raw and compared against git HEAD version (identical); regenerated report charts match HEAD content outside the retitled strings.",
+      "Fetched Lucene sources fresh for the line-number claims added to README.md: TermOrdValComparator.java at releases/lucene/10.5.0 (sha256 5294ff38f7b3875a173de3f2af9be507a61a1cb7fff91cde47cf76ee20bf2921; PostingsBasedCompetitiveState at line 522, MAX_TERMS=1024 at 524, min(MAX_TERMS, getMaxClauseCount()) at 581, SkipperBasedCompetitiveState at 648, AdaptiveSkipIterator at 694) and at releases/lucene/9.8.0 (MAX_TERMS=128 at line 478).",
+      "minimal_repro.py sha256 228674cab284f2cb6cd695a4ff9f39d7bbaddc70da1d81341734c274a7c36037 matches the value cited in FINDINGS.md and README.md; python3 -m unittest and report.py --self-test pass; python3 report.py --input results/raw --output results reports PASS/REPRODUCED."
+    ]
+  }
 }
