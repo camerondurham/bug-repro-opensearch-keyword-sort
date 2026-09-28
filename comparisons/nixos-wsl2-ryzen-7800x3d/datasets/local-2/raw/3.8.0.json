@@ -1,0 +1,3644 @@
+{
+  "schema": 1,
+  "version": "3.8.0",
+  "status": "valid",
+  "error": null,
+  "source_sha": "2b23427c439fe1ffdaece44b2629ac82fd80112c",
+  "run_url": "local",
+  "parameters": {
+    "docs": 198000,
+    "shards": 18,
+    "heap": "2g",
+    "samples": 100,
+    "block_warmups": 100,
+    "chunk": 5000,
+    "max_seconds": 780
+  },
+  "query": {
+    "size": 250,
+    "version": true,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "term": {
+              "tenant_id": "tenant-a"
+            }
+          }
+        ]
+      }
+    },
+    "sort": [
+      {
+        "item_key": "asc"
+      },
+      {
+        "market_id": "asc"
+      }
+    ],
+    "_source": {
+      "excludes": [
+        "source_records.*"
+      ]
+    }
+  },
+  "host": {
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.42",
+    "cpus": 16
+  },
+  "cells": [
+    {
+      "ceiling": 1024,
+      "replicate": 1,
+      "samples": [
+        16.469149995828047,
+        96.22461900289636,
+        16.200739999476355,
+        49.65863100369461,
+        17.040389000612777,
+        15.617847006069496,
+        68.00172800285509,
+        15.946986997732893,
+        15.80871500482317,
+        66.56175499665551,
+        16.339508001692593,
+        15.83085699530784,
+        68.63750499906018,
+        16.78390400047647,
+        15.747732999443542,
+        105.74404599901754,
+        16.749021000578068,
+        45.38174800109118,
+        16.140534993610345,
+        72.24217700422741,
+        16.7209860010189,
+        15.708329003246035,
+        69.24150800477946,
+        16.370311997889075,
+        15.755337000882719,
+        66.54321000678465,
+        17.21094999811612,
+        16.340344001946505,
+        67.42277599551016,
+        49.66736200003652,
+        52.151975003653206,
+        15.719930997875053,
+        15.40805799595546,
+        67.71821699658176,
+        17.77153000148246,
+        15.285018998838495,
+        66.66923000011593,
+        16.146485999342985,
+        72.80010700196726,
+        15.850262003368698,
+        15.629843997885473,
+        65.83485900046071,
+        16.278717994282488,
+        46.40926000138279,
+        46.75685199617874,
+        15.666433995647822,
+        15.232368998113088,
+        68.66394099779427,
+        15.967330997227691,
+        15.64094600325916,
+        66.26386900461512,
+        15.115982998395339,
+        15.353529001004063,
+        68.60549400153104,
+        15.397217001009267,
+        15.553855999314692,
+        67.7617109977291,
+        94.08512300433358,
+        16.26653000130318,
+        18.175213001086377,
+        66.263913999137,
+        18.653120001545176,
+        15.364850994956214,
+        64.57666200003587,
+        15.850989999307785,
+        15.254430996719748,
+        66.87996000255225,
+        15.988665996701457,
+        15.59809000173118,
+        69.01251700037392,
+        15.887674999248702,
+        92.12670600390993,
+        16.522111000085715,
+        63.60456299444195,
+        16.450238996185362,
+        15.226407995214686,
+        65.36911399598466,
+        18.57531600398943,
+        15.822134999325499,
+        14.860132003377657,
+        57.88676299562212,
+        16.952268000750337,
+        73.71706800040556,
+        17.572237004060298,
+        15.541095999651588,
+        79.24057700438425,
+        15.743955998914316,
+        15.199392000795342,
+        56.65178700292017,
+        15.954952999891248,
+        15.357987002062146,
+        64.19865900534205,
+        15.61638800194487,
+        15.025255997898057,
+        15.90504700288875,
+        62.06987900077365,
+        16.671304001647513,
+        71.76641700061737,
+        15.707482998550404,
+        15.383596000901889,
+        15.038585996080656,
+        14.429784001549706,
+        64.49837800028035,
+        18.37059299577959,
+        15.534277001279406,
+        63.822452997555956,
+        17.023954998876434,
+        15.976178001437802,
+        57.63838600250892,
+        16.69854099600343,
+        15.43225900240941,
+        62.89668399404036,
+        15.818662999663502,
+        14.645072995335795,
+        69.06575900211465,
+        15.96020300348755,
+        14.466874003119301,
+        74.38595900021028,
+        15.90120999753708,
+        15.522485999099445,
+        15.018627003883012,
+        53.42231900431216,
+        14.904918003594503,
+        14.439432001381647,
+        14.107896997302305,
+        53.865775000303984,
+        15.146065998123959,
+        14.64936100092018,
+        63.136997996480204,
+        14.65278200339526,
+        15.187974000582471,
+        17.059831996448338,
+        58.12103299831506,
+        14.93859699985478,
+        14.704815999721177,
+        64.89481299649924,
+        15.138110000407323,
+        14.680439999210648,
+        15.079197997692972,
+        57.692884001880884,
+        15.628490997187328,
+        14.532613997289445,
+        64.21838299866067,
+        15.212470003461931,
+        15.226989002258051,
+        14.774172996112611,
+        58.05367099674186,
+        20.09964000171749,
+        15.004986998974346,
+        56.92696999904001,
+        15.05501200153958,
+        15.50811299966881,
+        14.531426997564267,
+        52.741434003110044,
+        14.888926001731306,
+        14.29429100244306,
+        14.195645002473611,
+        54.312424996169284,
+        14.879738999297842,
+        17.19510000111768,
+        67.00801800616318,
+        18.816720999893732,
+        77.54954200208886,
+        16.09684299910441,
+        15.224303999275435,
+        71.59474499349017,
+        17.243330999917816,
+        15.205056995910127,
+        74.35239599726629,
+        15.057557000545785,
+        71.86024999828078,
+        16.776394004409667,
+        15.672885994717944,
+        14.947909003240056,
+        56.26377899898216,
+        15.360662997409236,
+        18.121739994967356,
+        63.545809003699105,
+        15.234363003401086,
+        14.361583998834249,
+        14.707611000631005,
+        57.599558000219986,
+        14.878917994792573,
+        14.578235997760203,
+        60.30351600202266,
+        14.772424998227507,
+        14.527018996886909,
+        14.873166997858789,
+        53.24423099955311,
+        15.675791997637134,
+        15.114043999346904,
+        18.57840799493715,
+        52.11904600582784,
+        14.610957994591445,
+        14.319232999696396,
+        14.53136700001778,
+        51.52463199920021,
+        14.99731300282292,
+        14.511428998957854,
+        68.64482999662869
+      ],
+      "took_ms": [
+        14,
+        94,
+        14,
+        47,
+        15,
+        13,
+        66,
+        14,
+        13,
+        64,
+        14,
+        14,
+        66,
+        15,
+        14,
+        103,
+        14,
+        43,
+        14,
+        70,
+        14,
+        14,
+        67,
+        14,
+        13,
+        64,
+        14,
+        14,
+        65,
+        47,
+        49,
+        13,
+        13,
+        65,
+        15,
+        13,
+        64,
+        14,
+        70,
+        13,
+        13,
+        63,
+        14,
+        44,
+        44,
+        13,
+        13,
+        67,
+        14,
+        14,
+        64,
+        13,
+        13,
+        66,
+        13,
+        13,
+        65,
+        91,
+        14,
+        16,
+        61,
+        16,
+        13,
+        62,
+        13,
+        13,
+        65,
+        14,
+        13,
+        67,
+        14,
+        89,
+        14,
+        61,
+        14,
+        13,
+        63,
+        16,
+        14,
+        13,
+        56,
+        15,
+        71,
+        14,
+        13,
+        77,
+        13,
+        13,
+        54,
+        14,
+        13,
+        62,
+        13,
+        13,
+        14,
+        60,
+        14,
+        69,
+        13,
+        13,
+        13,
+        12,
+        62,
+        16,
+        13,
+        61,
+        15,
+        14,
+        55,
+        15,
+        13,
+        61,
+        14,
+        13,
+        67,
+        14,
+        13,
+        72,
+        13,
+        13,
+        13,
+        52,
+        13,
+        13,
+        12,
+        52,
+        13,
+        13,
+        61,
+        13,
+        13,
+        15,
+        56,
+        13,
+        13,
+        63,
+        13,
+        13,
+        13,
+        55,
+        13,
+        13,
+        62,
+        13,
+        13,
+        13,
+        56,
+        18,
+        13,
+        55,
+        13,
+        14,
+        13,
+        51,
+        13,
+        13,
+        12,
+        52,
+        13,
+        15,
+        65,
+        17,
+        16,
+        14,
+        13,
+        69,
+        15,
+        13,
+        13,
+        13,
+        69,
+        14,
+        14,
+        13,
+        54,
+        13,
+        16,
+        61,
+        13,
+        13,
+        13,
+        56,
+        13,
+        13,
+        58,
+        13,
+        12,
+        13,
+        51,
+        14,
+        13,
+        17,
+        50,
+        13,
+        12,
+        13,
+        50,
+        13,
+        13,
+        67
+      ],
+      "block_medians": [
+        16.596707500866614,
+        15.528381500189425
+      ],
+      "cleanup": "clean",
+      "container_id": "7c73a8fe6d2c61abbfa5245249273446b6dd2abb93287a335523c9a5d952a878",
+      "identity": {
+        "version": {
+          "distribution": "opensearch",
+          "number": "3.8.0",
+          "build_type": "tar",
+          "build_hash": "e5a3c5691be87af6c12dbe3e158c59c04ee72973",
+          "build_date": "2026-08-01T18:48:00.452816924Z",
+          "build_snapshot": false,
+          "lucene_version": "10.5.0",
+          "minimum_wire_compatibility_version": "2.19.0",
+          "minimum_index_compatibility_version": "2.0.0"
+        },
+        "jvm": {
+          "pid": 1,
+          "version": "25.0.4",
+          "vm_name": "OpenJDK 64-Bit Server VM",
+          "vm_version": "25.0.4+7-LTS",
+          "vm_vendor": "Eclipse Adoptium",
+          "bundled_jdk": true,
+          "using_bundled_jdk": true,
+          "start_time_in_millis": 1790569694511,
+          "mem": {
+            "heap_init_in_bytes": 2147483648,
+            "heap_max_in_bytes": 2147483648,
+            "non_heap_init_in_bytes": 7667712,
+            "non_heap_max_in_bytes": 0,
+            "direct_max_in_bytes": 0
+          },
+          "gc_collectors": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+          ],
+          "memory_pools": [
+            "CodeHeap 'non-nmethods'",
+            "Metaspace",
+            "CodeHeap 'profiled nmethods'",
+            "Compressed Class Space",
+            "G1 Eden Space",
+            "G1 Old Gen",
+            "G1 Survivor Space",
+            "CodeHeap 'non-profiled nmethods'"
+          ],
+          "using_compressed_ordinary_object_pointers": "true",
+          "input_arguments": [
+            "-Xshare:auto",
+            "-Dopensearch.networkaddress.cache.ttl=60",
+            "-Dopensearch.networkaddress.cache.negative.ttl=10",
+            "-XX:+AlwaysPreTouch",
+            "-Xss1m",
+            "-Djava.awt.headless=true",
+            "-Dfile.encoding=UTF-8",
+            "-Djna.nosys=true",
+            "-XX:-OmitStackTraceInFastThrow",
+            "-XX:+ShowCodeDetailsInExceptionMessages",
+            "-Dio.netty.noUnsafe=true",
+            "-Dio.netty.noKeySetOptimization=true",
+            "-Dio.netty.recycler.maxCapacityPerThread=0",
+            "-Dio.netty.allocator.numDirectArenas=0",
+            "-Dlog4j.shutdownHookEnabled=false",
+            "-Dlog4j2.disable.jmx=true",
+            "-Djava.locale.providers=SPI,CLDR",
+            "-Xms1g",
+            "-Xmx1g",
+            "-XX:+UseG1GC",
+            "-XX:G1ReservePercent=25",
+            "-XX:InitiatingHeapOccupancyPercent=30",
+            "-Djava.io.tmpdir=/tmp/opensearch-8869692472609486014",
+            "-XX:+HeapDumpOnOutOfMemoryError",
+            "-XX:HeapDumpPath=data",
+            "-XX:ErrorFile=logs/hs_err_pid%p.log",
+            "-Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m",
+            "--add-modules=jdk.incubator.vector",
+            "-javaagent:agent/opensearch-agent.jar",
+            "--add-opens=java.base/java.nio=ALL-UNNAMED",
+            "-Dorg.apache.lucene.store.MMapDirectory.sharedArenaMaxPermits=1",
+            "-XX:+UseCompactObjectHeaders",
+            "-Dclk.tck=100",
+            "-Djdk.attach.allowAttachSelf=true",
+            "-Djava.security.policy=/usr/share/opensearch/config/opensearch-performance-analyzer/opensearch_security.policy",
+            "--add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED",
+            "-Dopensearch.cgroups.hierarchy.override=/",
+            "-Xms2g",
+            "-Xmx2g",
+            "-XX:ActiveProcessorCount=2",
+            "-XX:MaxDirectMemorySize=1073741824",
+            "-Dopensearch.path.home=/usr/share/opensearch",
+            "-Dopensearch.path.conf=/usr/share/opensearch/config",
+            "-Dopensearch.distribution.type=tar",
+            "-Dopensearch.bundled_jdk=true"
+          ]
+        },
+        "image": {
+          "Id": "sha256:9c4d3b54042a402a11618658d5309121a349aeb60b375deba29334d033e65fc0",
+          "RepoDigests": [
+            "opensearchproject/opensearch@sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0"
+          ],
+          "Architecture": "amd64",
+          "Os": "linux",
+          "tag": "opensearchproject/opensearch:3.8.0",
+          "pinned_reference": "opensearchproject/opensearch@sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0"
+        }
+      },
+      "layout_before": {
+        "docs": {
+          "count": 198000,
+          "deleted": 0
+        },
+        "merges_total": 0,
+        "merges_current": 0,
+        "segments": {
+          "0": {
+            "_0": {
+              "num_docs": 5531,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5407,
+              "deleted_docs": 0
+            }
+          },
+          "1": {
+            "_0": {
+              "num_docs": 5587,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5336,
+              "deleted_docs": 0
+            }
+          },
+          "2": {
+            "_0": {
+              "num_docs": 5599,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5430,
+              "deleted_docs": 0
+            }
+          },
+          "3": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5393,
+              "deleted_docs": 0
+            }
+          },
+          "4": {
+            "_0": {
+              "num_docs": 5518,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5389,
+              "deleted_docs": 0
+            }
+          },
+          "5": {
+            "_0": {
+              "num_docs": 5558,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "6": {
+            "_0": {
+              "num_docs": 5662,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5477,
+              "deleted_docs": 0
+            }
+          },
+          "7": {
+            "_0": {
+              "num_docs": 5611,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5468,
+              "deleted_docs": 0
+            }
+          },
+          "8": {
+            "_0": {
+              "num_docs": 5436,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5395,
+              "deleted_docs": 0
+            }
+          },
+          "9": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5509,
+              "deleted_docs": 0
+            }
+          },
+          "10": {
+            "_0": {
+              "num_docs": 5570,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5418,
+              "deleted_docs": 0
+            }
+          },
+          "11": {
+            "_0": {
+              "num_docs": 5462,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5453,
+              "deleted_docs": 0
+            }
+          },
+          "12": {
+            "_0": {
+              "num_docs": 5721,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "13": {
+            "_0": {
+              "num_docs": 5615,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "14": {
+            "_0": {
+              "num_docs": 5582,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5427,
+              "deleted_docs": 0
+            }
+          },
+          "15": {
+            "_0": {
+              "num_docs": 5650,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5432,
+              "deleted_docs": 0
+            }
+          },
+          "16": {
+            "_0": {
+              "num_docs": 5472,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "17": {
+            "_0": {
+              "num_docs": 5426,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5424,
+              "deleted_docs": 0
+            }
+          }
+        }
+      },
+      "result_hash": "4bb75f0f61dca23d3c3096c7e7f26a6851ea992784ac3027abfb3aa687826dda",
+      "layout_after": {
+        "docs": {
+          "count": 198000,
+          "deleted": 0
+        },
+        "merges_total": 0,
+        "merges_current": 0,
+        "segments": {
+          "0": {
+            "_0": {
+              "num_docs": 5531,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5407,
+              "deleted_docs": 0
+            }
+          },
+          "1": {
+            "_0": {
+              "num_docs": 5587,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5336,
+              "deleted_docs": 0
+            }
+          },
+          "2": {
+            "_0": {
+              "num_docs": 5599,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5430,
+              "deleted_docs": 0
+            }
+          },
+          "3": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5393,
+              "deleted_docs": 0
+            }
+          },
+          "4": {
+            "_0": {
+              "num_docs": 5518,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5389,
+              "deleted_docs": 0
+            }
+          },
+          "5": {
+            "_0": {
+              "num_docs": 5558,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "6": {
+            "_0": {
+              "num_docs": 5662,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5477,
+              "deleted_docs": 0
+            }
+          },
+          "7": {
+            "_0": {
+              "num_docs": 5611,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5468,
+              "deleted_docs": 0
+            }
+          },
+          "8": {
+            "_0": {
+              "num_docs": 5436,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5395,
+              "deleted_docs": 0
+            }
+          },
+          "9": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5509,
+              "deleted_docs": 0
+            }
+          },
+          "10": {
+            "_0": {
+              "num_docs": 5570,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5418,
+              "deleted_docs": 0
+            }
+          },
+          "11": {
+            "_0": {
+              "num_docs": 5462,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5453,
+              "deleted_docs": 0
+            }
+          },
+          "12": {
+            "_0": {
+              "num_docs": 5721,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "13": {
+            "_0": {
+              "num_docs": 5615,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "14": {
+            "_0": {
+              "num_docs": 5582,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5427,
+              "deleted_docs": 0
+            }
+          },
+          "15": {
+            "_0": {
+              "num_docs": 5650,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5432,
+              "deleted_docs": 0
+            }
+          },
+          "16": {
+            "_0": {
+              "num_docs": 5472,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "17": {
+            "_0": {
+              "num_docs": 5426,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5424,
+              "deleted_docs": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "ceiling": 128,
+      "replicate": 1,
+      "samples": [
+        7.7671109975199215,
+        46.99175899440888,
+        7.5526840009843,
+        7.486028000130318,
+        7.773915000143461,
+        7.329690000915434,
+        7.485136004106607,
+        6.9948949967511,
+        51.46182399766985,
+        7.561571001133416,
+        7.518739002989605,
+        7.344347999605816,
+        7.389263999357354,
+        7.500175001041498,
+        57.36360100127058,
+        8.100845996523276,
+        7.623908997629769,
+        6.9794239971088246,
+        7.43366900132969,
+        7.474584999727085,
+        59.394570998847485,
+        9.586409003532026,
+        8.198070994694717,
+        8.132856004522182,
+        7.589363005536143,
+        8.24051000381587,
+        55.804057003115304,
+        8.721805999812204,
+        8.09126699459739,
+        7.229429997096304,
+        7.830643000488635,
+        7.807829002558719,
+        56.95928200293565,
+        39.07658599928254,
+        7.598691001476254,
+        7.345840997004416,
+        7.282760998350568,
+        37.385662995802704,
+        7.496447004086804,
+        7.206795999081805,
+        7.8401299979304895,
+        7.1512369977426715,
+        7.622491000802256,
+        6.946753004740458,
+        54.523213002539705,
+        7.022777004749514,
+        7.128598001145292,
+        6.980435995501466,
+        7.804453001881484,
+        7.0591460025752895,
+        7.357042995863594,
+        53.484268006286584,
+        7.3982409958262,
+        6.991246998950373,
+        6.878052001411561,
+        7.068171995342709,
+        7.472863006114494,
+        7.035251001070719,
+        55.8396950000315,
+        7.318498996028211,
+        7.751573000859935,
+        7.394273001409601,
+        7.4866279974230565,
+        7.175755999924149,
+        53.83707000146387,
+        7.41974099946674,
+        7.39749800413847,
+        6.899812993651722,
+        7.272943003044929,
+        7.4378959980094805,
+        7.457703002728522,
+        53.987394996511284,
+        7.4440769967623055,
+        7.3012459979509,
+        7.077922004100401,
+        6.99343100131955,
+        7.123217998014297,
+        6.831844002590515,
+        54.06776599556906,
+        7.289723995199893,
+        7.706947006226983,
+        6.898771003761794,
+        7.120864000171423,
+        6.76197100256104,
+        6.815603002905846,
+        56.237176002468914,
+        8.284255003673024,
+        7.270360998518299,
+        6.90466100058984,
+        6.733235997671727,
+        6.758916002581827,
+        6.868730000860523,
+        53.57120699773077,
+        7.416364998789504,
+        7.0461110008182,
+        6.939339000382461,
+        6.940070001292042,
+        7.170877994212788,
+        7.4372849994688295,
+        55.4945179974311,
+        6.85456700011855,
+        6.692289003694896,
+        50.497962001827545,
+        7.014319999143481,
+        7.022612997388933,
+        6.436467003368307,
+        7.172722005634569,
+        6.791988998884335,
+        6.744438003806863,
+        6.820612004958093,
+        50.39111899532145,
+        6.830240999988746,
+        6.677461002254859,
+        6.6957759991055354,
+        6.765687998267822,
+        6.927976995939389,
+        6.752102999598719,
+        53.33521500142524,
+        7.163194000895601,
+        7.1782719969633035,
+        6.629950999922585,
+        6.619629995839205,
+        6.7766790016321465,
+        6.377560006512795,
+        6.5367729985155165,
+        51.36876700271387,
+        7.9171569959726185,
+        7.003710001299623,
+        7.1400900051230565,
+        6.360327999573201,
+        6.487979997473303,
+        6.529739002871793,
+        86.08564799942542,
+        7.664575998205692,
+        7.887379004387185,
+        6.915423000464216,
+        6.365207002090756,
+        36.924175001331605,
+        6.892650002555456,
+        6.419890996767208,
+        6.963123996683862,
+        6.497910006146412,
+        6.344768000417389,
+        6.387859997630585,
+        56.49476100370521,
+        8.36068799981149,
+        6.768763996660709,
+        6.725721999828238,
+        6.213679000211414,
+        6.3991920033004135,
+        6.247163000807632,
+        6.249817997741047,
+        50.46195399336284,
+        6.203734999871813,
+        6.35270299972035,
+        6.111150003562216,
+        6.6503840062068775,
+        6.218989001354203,
+        6.240470000193454,
+        6.4008660046965815,
+        52.41277599998284,
+        6.863449001684785,
+        6.542383998748846,
+        6.155569994007237,
+        6.122514998423867,
+        6.555740001203958,
+        6.661551000433974,
+        56.33810099971015,
+        6.776088004698977,
+        6.423496997740585,
+        6.324349997157697,
+        6.44317599653732,
+        6.802178002544679,
+        6.430100998841226,
+        6.61363999824971,
+        52.35818299843231,
+        6.338020997645799,
+        6.263795003178529,
+        6.281428002694156,
+        6.6159729976789095,
+        6.55678100156365,
+        6.467591003456619,
+        6.510243001685012,
+        52.92867200478213,
+        6.3838320056675,
+        6.19455299602123,
+        6.335780999506824,
+        6.297870000707917,
+        6.381588005751837,
+        6.048183997336309,
+        55.27798199909739,
+        6.842018003226258,
+        6.455138005549088,
+        6.282960996031761,
+        6.277790998865385,
+        6.318368003121577,
+        6.5363229950889945,
+        7.389204001810867,
+        51.692322005692404,
+        6.919331004610285
+      ],
+      "took_ms": [
+        6,
+        45,
+        5,
+        5,
+        6,
+        5,
+        5,
+        5,
+        49,
+        5,
+        5,
+        5,
+        5,
+        6,
+        55,
+        6,
+        6,
+        5,
+        5,
+        6,
+        56,
+        7,
+        6,
+        6,
+        5,
+        6,
+        54,
+        6,
+        6,
+        5,
+        6,
+        6,
+        55,
+        37,
+        5,
+        5,
+        5,
+        35,
+        5,
+        5,
+        6,
+        5,
+        6,
+        5,
+        53,
+        5,
+        5,
+        5,
+        6,
+        5,
+        5,
+        52,
+        5,
+        5,
+        5,
+        5,
+        6,
+        5,
+        6,
+        5,
+        6,
+        6,
+        6,
+        5,
+        52,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        52,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        52,
+        5,
+        6,
+        5,
+        5,
+        5,
+        5,
+        54,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        51,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        53,
+        5,
+        5,
+        48,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        48,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        51,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        49,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        84,
+        5,
+        6,
+        5,
+        4,
+        35,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        54,
+        6,
+        5,
+        5,
+        4,
+        5,
+        4,
+        4,
+        49,
+        4,
+        5,
+        4,
+        5,
+        4,
+        4,
+        5,
+        51,
+        5,
+        5,
+        4,
+        4,
+        5,
+        5,
+        55,
+        5,
+        5,
+        4,
+        5,
+        5,
+        5,
+        5,
+        50,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        4,
+        4,
+        4,
+        5,
+        5,
+        4,
+        53,
+        5,
+        5,
+        4,
+        4,
+        5,
+        5,
+        5,
+        49,
+        5
+      ],
+      "block_medians": [
+        7.437590498739155,
+        6.640167503064731
+      ],
+      "cleanup": "clean",
+      "container_id": "4c017b69d20b5a6cc68af676913605e7bdebbaac41ddbc6d934234ad05e703c7",
+      "identity": {
+        "version": {
+          "distribution": "opensearch",
+          "number": "3.8.0",
+          "build_type": "tar",
+          "build_hash": "e5a3c5691be87af6c12dbe3e158c59c04ee72973",
+          "build_date": "2026-08-01T18:48:00.452816924Z",
+          "build_snapshot": false,
+          "lucene_version": "10.5.0",
+          "minimum_wire_compatibility_version": "2.19.0",
+          "minimum_index_compatibility_version": "2.0.0"
+        },
+        "jvm": {
+          "pid": 1,
+          "version": "25.0.4",
+          "vm_name": "OpenJDK 64-Bit Server VM",
+          "vm_version": "25.0.4+7-LTS",
+          "vm_vendor": "Eclipse Adoptium",
+          "bundled_jdk": true,
+          "using_bundled_jdk": true,
+          "start_time_in_millis": 1790569727837,
+          "mem": {
+            "heap_init_in_bytes": 2147483648,
+            "heap_max_in_bytes": 2147483648,
+            "non_heap_init_in_bytes": 7667712,
+            "non_heap_max_in_bytes": 0,
+            "direct_max_in_bytes": 0
+          },
+          "gc_collectors": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+          ],
+          "memory_pools": [
+            "CodeHeap 'non-nmethods'",
+            "Metaspace",
+            "CodeHeap 'profiled nmethods'",
+            "Compressed Class Space",
+            "G1 Eden Space",
+            "G1 Old Gen",
+            "G1 Survivor Space",
+            "CodeHeap 'non-profiled nmethods'"
+          ],
+          "using_compressed_ordinary_object_pointers": "true",
+          "input_arguments": [
+            "-Xshare:auto",
+            "-Dopensearch.networkaddress.cache.ttl=60",
+            "-Dopensearch.networkaddress.cache.negative.ttl=10",
+            "-XX:+AlwaysPreTouch",
+            "-Xss1m",
+            "-Djava.awt.headless=true",
+            "-Dfile.encoding=UTF-8",
+            "-Djna.nosys=true",
+            "-XX:-OmitStackTraceInFastThrow",
+            "-XX:+ShowCodeDetailsInExceptionMessages",
+            "-Dio.netty.noUnsafe=true",
+            "-Dio.netty.noKeySetOptimization=true",
+            "-Dio.netty.recycler.maxCapacityPerThread=0",
+            "-Dio.netty.allocator.numDirectArenas=0",
+            "-Dlog4j.shutdownHookEnabled=false",
+            "-Dlog4j2.disable.jmx=true",
+            "-Djava.locale.providers=SPI,CLDR",
+            "-Xms1g",
+            "-Xmx1g",
+            "-XX:+UseG1GC",
+            "-XX:G1ReservePercent=25",
+            "-XX:InitiatingHeapOccupancyPercent=30",
+            "-Djava.io.tmpdir=/tmp/opensearch-17783247525295471830",
+            "-XX:+HeapDumpOnOutOfMemoryError",
+            "-XX:HeapDumpPath=data",
+            "-XX:ErrorFile=logs/hs_err_pid%p.log",
+            "-Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m",
+            "--add-modules=jdk.incubator.vector",
+            "-javaagent:agent/opensearch-agent.jar",
+            "--add-opens=java.base/java.nio=ALL-UNNAMED",
+            "-Dorg.apache.lucene.store.MMapDirectory.sharedArenaMaxPermits=1",
+            "-XX:+UseCompactObjectHeaders",
+            "-Dclk.tck=100",
+            "-Djdk.attach.allowAttachSelf=true",
+            "-Djava.security.policy=/usr/share/opensearch/config/opensearch-performance-analyzer/opensearch_security.policy",
+            "--add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED",
+            "-Dopensearch.cgroups.hierarchy.override=/",
+            "-Xms2g",
+            "-Xmx2g",
+            "-XX:ActiveProcessorCount=2",
+            "-XX:MaxDirectMemorySize=1073741824",
+            "-Dopensearch.path.home=/usr/share/opensearch",
+            "-Dopensearch.path.conf=/usr/share/opensearch/config",
+            "-Dopensearch.distribution.type=tar",
+            "-Dopensearch.bundled_jdk=true"
+          ]
+        },
+        "image": {
+          "Id": "sha256:9c4d3b54042a402a11618658d5309121a349aeb60b375deba29334d033e65fc0",
+          "RepoDigests": [
+            "opensearchproject/opensearch@sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0"
+          ],
+          "Architecture": "amd64",
+          "Os": "linux",
+          "tag": "opensearchproject/opensearch:3.8.0",
+          "pinned_reference": "opensearchproject/opensearch@sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0"
+        }
+      },
+      "layout_before": {
+        "docs": {
+          "count": 198000,
+          "deleted": 0
+        },
+        "merges_total": 0,
+        "merges_current": 0,
+        "segments": {
+          "0": {
+            "_0": {
+              "num_docs": 5531,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5407,
+              "deleted_docs": 0
+            }
+          },
+          "1": {
+            "_0": {
+              "num_docs": 5587,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5336,
+              "deleted_docs": 0
+            }
+          },
+          "2": {
+            "_0": {
+              "num_docs": 5599,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5430,
+              "deleted_docs": 0
+            }
+          },
+          "3": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5393,
+              "deleted_docs": 0
+            }
+          },
+          "4": {
+            "_0": {
+              "num_docs": 5518,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5389,
+              "deleted_docs": 0
+            }
+          },
+          "5": {
+            "_0": {
+              "num_docs": 5558,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "6": {
+            "_0": {
+              "num_docs": 5662,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5477,
+              "deleted_docs": 0
+            }
+          },
+          "7": {
+            "_0": {
+              "num_docs": 5611,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5468,
+              "deleted_docs": 0
+            }
+          },
+          "8": {
+            "_0": {
+              "num_docs": 5436,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5395,
+              "deleted_docs": 0
+            }
+          },
+          "9": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5509,
+              "deleted_docs": 0
+            }
+          },
+          "10": {
+            "_0": {
+              "num_docs": 5570,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5418,
+              "deleted_docs": 0
+            }
+          },
+          "11": {
+            "_0": {
+              "num_docs": 5462,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5453,
+              "deleted_docs": 0
+            }
+          },
+          "12": {
+            "_0": {
+              "num_docs": 5721,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "13": {
+            "_0": {
+              "num_docs": 5615,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "14": {
+            "_0": {
+              "num_docs": 5582,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5427,
+              "deleted_docs": 0
+            }
+          },
+          "15": {
+            "_0": {
+              "num_docs": 5650,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5432,
+              "deleted_docs": 0
+            }
+          },
+          "16": {
+            "_0": {
+              "num_docs": 5472,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "17": {
+            "_0": {
+              "num_docs": 5426,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5424,
+              "deleted_docs": 0
+            }
+          }
+        }
+      },
+      "result_hash": "4bb75f0f61dca23d3c3096c7e7f26a6851ea992784ac3027abfb3aa687826dda",
+      "layout_after": {
+        "docs": {
+          "count": 198000,
+          "deleted": 0
+        },
+        "merges_total": 0,
+        "merges_current": 0,
+        "segments": {
+          "0": {
+            "_0": {
+              "num_docs": 5531,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5407,
+              "deleted_docs": 0
+            }
+          },
+          "1": {
+            "_0": {
+              "num_docs": 5587,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5336,
+              "deleted_docs": 0
+            }
+          },
+          "2": {
+            "_0": {
+              "num_docs": 5599,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5430,
+              "deleted_docs": 0
+            }
+          },
+          "3": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5393,
+              "deleted_docs": 0
+            }
+          },
+          "4": {
+            "_0": {
+              "num_docs": 5518,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5389,
+              "deleted_docs": 0
+            }
+          },
+          "5": {
+            "_0": {
+              "num_docs": 5558,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "6": {
+            "_0": {
+              "num_docs": 5662,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5477,
+              "deleted_docs": 0
+            }
+          },
+          "7": {
+            "_0": {
+              "num_docs": 5611,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5468,
+              "deleted_docs": 0
+            }
+          },
+          "8": {
+            "_0": {
+              "num_docs": 5436,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5395,
+              "deleted_docs": 0
+            }
+          },
+          "9": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5509,
+              "deleted_docs": 0
+            }
+          },
+          "10": {
+            "_0": {
+              "num_docs": 5570,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5418,
+              "deleted_docs": 0
+            }
+          },
+          "11": {
+            "_0": {
+              "num_docs": 5462,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5453,
+              "deleted_docs": 0
+            }
+          },
+          "12": {
+            "_0": {
+              "num_docs": 5721,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "13": {
+            "_0": {
+              "num_docs": 5615,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "14": {
+            "_0": {
+              "num_docs": 5582,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5427,
+              "deleted_docs": 0
+            }
+          },
+          "15": {
+            "_0": {
+              "num_docs": 5650,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5432,
+              "deleted_docs": 0
+            }
+          },
+          "16": {
+            "_0": {
+              "num_docs": 5472,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "17": {
+            "_0": {
+              "num_docs": 5426,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5424,
+              "deleted_docs": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "ceiling": 128,
+      "replicate": 2,
+      "samples": [
+        7.956792003824376,
+        46.0616909986129,
+        8.007427997654304,
+        7.552303999545984,
+        7.760417996905744,
+        7.420513000397477,
+        7.614340000145603,
+        56.72877399774734,
+        8.454438000626396,
+        8.241427996836137,
+        7.571369002107531,
+        7.587774998683017,
+        7.6501590010593645,
+        57.201431001885794,
+        8.081438005319797,
+        7.571900998300407,
+        7.820101993274875,
+        7.510764000471681,
+        7.990942998731043,
+        58.477660997596104,
+        8.243897995271254,
+        7.870096997066867,
+        7.386938996205572,
+        7.740259999991395,
+        7.188492003479041,
+        59.04197400377598,
+        7.919877003587317,
+        7.795686004101299,
+        38.83790200052317,
+        7.489935000194237,
+        37.70419200009201,
+        7.588196000142489,
+        7.089028003974818,
+        6.968658999539912,
+        7.134169005439617,
+        7.069234998198226,
+        7.101655995938927,
+        53.89710699819261,
+        7.383627002127469,
+        7.467681003618054,
+        7.463043999450747,
+        7.400083995889872,
+        7.300905002921354,
+        7.38772999466164,
+        52.911558996129315,
+        7.335630994930398,
+        7.579094002721831,
+        7.107648998498917,
+        7.088992002536543,
+        7.282359998498578,
+        7.479364001483191,
+        53.38666700117756,
+        7.957970003189985,
+        7.081978998030536,
+        7.1169160000863485,
+        7.329678999667522,
+        7.368223006778862,
+        7.108599995262921,
+        52.13877899950603,
+        7.640149997314438,
+        7.033806999970693,
+        7.123146999219898,
+        6.955279000976589,
+        6.999281999014784,
+        58.11538999842014,
+        7.40571400092449,
+        6.670347000181209,
+        7.743583002593368,
+        7.010547997197136,
+        8.179835000191815,
+        7.9762790046515875,
+        53.773646999616176,
+        7.299652999790851,
+        7.77242099866271,
+        6.912386998010334,
+        6.862561996967997,
+        7.101342001988087,
+        7.0106780040077865,
+        54.28858600498643,
+        7.4820090012508444,
+        7.168834999902174,
+        7.066730002406985,
+        6.99393200193299,
+        7.036062001134269,
+        7.057111994072329,
+        55.031527001119684,
+        7.68391400197288,
+        6.962542996916454,
+        10.436074000608642,
+        6.900738000695128,
+        6.880602995806839,
+        53.19221300305799,
+        7.374428998446092,
+        6.702127000608016,
+        6.698660996335093,
+        7.189344003563747,
+        7.225212000776082,
+        6.884693997562863,
+        7.148684999265242,
+        51.681992001249455,
+        6.783596996683627,
+        6.486696998763364,
+        6.585420996998437,
+        6.226809004147071,
+        6.411649999790825,
+        6.683322004391812,
+        52.051438004127704,
+        6.655956000031438,
+        6.366383000568021,
+        6.568158998561557,
+        6.53156399494037,
+        6.39395100006368,
+        6.547814002260566,
+        54.83603599714115,
+        6.79477299854625,
+        6.4310320012737066,
+        6.785101002606098,
+        6.467030005296692,
+        6.227235004189424,
+        6.390770999132656,
+        6.287438998697326,
+        50.537009999970905,
+        6.564431001606863,
+        6.489467996289022,
+        5.934658998739906,
+        6.5371639939257875,
+        6.07176899939077,
+        71.88254799984861,
+        7.6762440003221855,
+        6.959105005080346,
+        6.390555994585156,
+        6.584324000868946,
+        6.494392000604421,
+        6.308680000074673,
+        49.868144997162744,
+        6.93562700325856,
+        6.461775003117509,
+        6.205333003890701,
+        6.489106999651995,
+        6.025691996910609,
+        6.440905999625102,
+        6.08464300603373,
+        52.77084700355772,
+        6.519519993162248,
+        6.288381999183912,
+        6.644326997047756,
+        6.395979995431844,
+        6.4137590015889145,
+        6.386807996022981,
+        6.462110999564175,
+        6.896526996570174,
+        45.2263179977308,
+        6.30123500013724,
+        6.859411005279981,
+        6.2832360054017045,
+        6.093921001593117,
+        6.072440999560058,
+        6.116603995906189,
+        6.114752002758905,
+        51.72477900487138,
+        7.2426389961037785,
+        6.564341005287133,
+        6.5016970038414,
+        6.2293890005094,
+        6.289612996624783,
+        6.013484002323821,
+        6.234448999748565,
+        52.15821699675871,
+        7.047317994874902,
+        6.436142000893597,
+        6.245043994567823,
+        6.224434000614565,
+        6.241903000045568,
+        6.105334003223106,
+        6.279829998675268,
+        51.70490499585867,
+        6.623548004426993,
+        6.318036997981835,
+        6.362302003253717,
+        6.364756001858041,
+        6.410934001905844,
+        6.0672010004054755,
+        6.742318000760861,
+        50.74904900538968,
+        7.0704069948988035,
+        6.4707679994171485,
+        6.278802000451833,
+        6.010532997606788,
+        6.112767005106434,
+        6.193248998897616,
+        6.274965999182314,
+        54.03934100468177,
+        8.496151996951085,
+        6.497604001197033,
+        6.267983000725508,
+        6.2281110003823414,
+        5.962707997241523,
+        6.098414000007324,
+        53.48934300127439,
+        6.620054999075364
+      ],
+      "took_ms": [
+        6,
+        44,
+        6,
+        5,
+        6,
+        5,
+        6,
+        54,
+        6,
+        6,
+        6,
+        6,
+        6,
+        55,
+        6,
+        6,
+        6,
+        5,
+        6,
+        56,
+        6,
+        6,
+        5,
+        6,
+        5,
+        57,
+        6,
+        6,
+        36,
+        5,
+        36,
+        6,
+        5,
+        5,
+        5,
+        5,
+        5,
+        52,
+        5,
+        6,
+        6,
+        5,
+        5,
+        5,
+        51,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        51,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        50,
+        6,
+        5,
+        5,
+        5,
+        5,
+        56,
+        5,
+        5,
+        6,
+        5,
+        6,
+        6,
+        52,
+        5,
+        6,
+        5,
+        5,
+        5,
+        5,
+        52,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        53,
+        5,
+        5,
+        6,
+        5,
+        5,
+        51,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        49,
+        5,
+        5,
+        5,
+        4,
+        5,
+        5,
+        50,
+        5,
+        4,
+        5,
+        5,
+        5,
+        5,
+        53,
+        5,
+        4,
+        5,
+        5,
+        4,
+        5,
+        4,
+        49,
+        5,
+        5,
+        4,
+        5,
+        4,
+        70,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        48,
+        5,
+        5,
+        4,
+        5,
+        4,
+        5,
+        4,
+        51,
+        5,
+        4,
+        5,
+        4,
+        5,
+        5,
+        5,
+        5,
+        43,
+        4,
+        5,
+        4,
+        4,
+        4,
+        4,
+        4,
+        50,
+        5,
+        5,
+        5,
+        4,
+        4,
+        4,
+        4,
+        50,
+        5,
+        5,
+        4,
+        4,
+        4,
+        4,
+        4,
+        50,
+        5,
+        4,
+        5,
+        5,
+        5,
+        4,
+        5,
+        49,
+        5,
+        5,
+        4,
+        4,
+        4,
+        4,
+        5,
+        52,
+        6,
+        5,
+        4,
+        4,
+        4,
+        4,
+        52,
+        5
+      ],
+      "block_medians": [
+        7.4735225025506224,
+        6.451340501371305
+      ],
+      "cleanup": "clean",
+      "container_id": "39d55ce3ec8c216087ebdf3d6c4354df1c10d9a02a2f024b624447ff9f6ac4b1",
+      "identity": {
+        "version": {
+          "distribution": "opensearch",
+          "number": "3.8.0",
+          "build_type": "tar",
+          "build_hash": "e5a3c5691be87af6c12dbe3e158c59c04ee72973",
+          "build_date": "2026-08-01T18:48:00.452816924Z",
+          "build_snapshot": false,
+          "lucene_version": "10.5.0",
+          "minimum_wire_compatibility_version": "2.19.0",
+          "minimum_index_compatibility_version": "2.0.0"
+        },
+        "jvm": {
+          "pid": 1,
+          "version": "25.0.4",
+          "vm_name": "OpenJDK 64-Bit Server VM",
+          "vm_version": "25.0.4+7-LTS",
+          "vm_vendor": "Eclipse Adoptium",
+          "bundled_jdk": true,
+          "using_bundled_jdk": true,
+          "start_time_in_millis": 1790569753163,
+          "mem": {
+            "heap_init_in_bytes": 2147483648,
+            "heap_max_in_bytes": 2147483648,
+            "non_heap_init_in_bytes": 7667712,
+            "non_heap_max_in_bytes": 0,
+            "direct_max_in_bytes": 0
+          },
+          "gc_collectors": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+          ],
+          "memory_pools": [
+            "CodeHeap 'non-nmethods'",
+            "Metaspace",
+            "CodeHeap 'profiled nmethods'",
+            "Compressed Class Space",
+            "G1 Eden Space",
+            "G1 Old Gen",
+            "G1 Survivor Space",
+            "CodeHeap 'non-profiled nmethods'"
+          ],
+          "using_compressed_ordinary_object_pointers": "true",
+          "input_arguments": [
+            "-Xshare:auto",
+            "-Dopensearch.networkaddress.cache.ttl=60",
+            "-Dopensearch.networkaddress.cache.negative.ttl=10",
+            "-XX:+AlwaysPreTouch",
+            "-Xss1m",
+            "-Djava.awt.headless=true",
+            "-Dfile.encoding=UTF-8",
+            "-Djna.nosys=true",
+            "-XX:-OmitStackTraceInFastThrow",
+            "-XX:+ShowCodeDetailsInExceptionMessages",
+            "-Dio.netty.noUnsafe=true",
+            "-Dio.netty.noKeySetOptimization=true",
+            "-Dio.netty.recycler.maxCapacityPerThread=0",
+            "-Dio.netty.allocator.numDirectArenas=0",
+            "-Dlog4j.shutdownHookEnabled=false",
+            "-Dlog4j2.disable.jmx=true",
+            "-Djava.locale.providers=SPI,CLDR",
+            "-Xms1g",
+            "-Xmx1g",
+            "-XX:+UseG1GC",
+            "-XX:G1ReservePercent=25",
+            "-XX:InitiatingHeapOccupancyPercent=30",
+            "-Djava.io.tmpdir=/tmp/opensearch-17820047584162489211",
+            "-XX:+HeapDumpOnOutOfMemoryError",
+            "-XX:HeapDumpPath=data",
+            "-XX:ErrorFile=logs/hs_err_pid%p.log",
+            "-Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m",
+            "--add-modules=jdk.incubator.vector",
+            "-javaagent:agent/opensearch-agent.jar",
+            "--add-opens=java.base/java.nio=ALL-UNNAMED",
+            "-Dorg.apache.lucene.store.MMapDirectory.sharedArenaMaxPermits=1",
+            "-XX:+UseCompactObjectHeaders",
+            "-Dclk.tck=100",
+            "-Djdk.attach.allowAttachSelf=true",
+            "-Djava.security.policy=/usr/share/opensearch/config/opensearch-performance-analyzer/opensearch_security.policy",
+            "--add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED",
+            "-Dopensearch.cgroups.hierarchy.override=/",
+            "-Xms2g",
+            "-Xmx2g",
+            "-XX:ActiveProcessorCount=2",
+            "-XX:MaxDirectMemorySize=1073741824",
+            "-Dopensearch.path.home=/usr/share/opensearch",
+            "-Dopensearch.path.conf=/usr/share/opensearch/config",
+            "-Dopensearch.distribution.type=tar",
+            "-Dopensearch.bundled_jdk=true"
+          ]
+        },
+        "image": {
+          "Id": "sha256:9c4d3b54042a402a11618658d5309121a349aeb60b375deba29334d033e65fc0",
+          "RepoDigests": [
+            "opensearchproject/opensearch@sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0"
+          ],
+          "Architecture": "amd64",
+          "Os": "linux",
+          "tag": "opensearchproject/opensearch:3.8.0",
+          "pinned_reference": "opensearchproject/opensearch@sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0"
+        }
+      },
+      "layout_before": {
+        "docs": {
+          "count": 198000,
+          "deleted": 0
+        },
+        "merges_total": 0,
+        "merges_current": 0,
+        "segments": {
+          "0": {
+            "_0": {
+              "num_docs": 5531,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5407,
+              "deleted_docs": 0
+            }
+          },
+          "1": {
+            "_0": {
+              "num_docs": 5587,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5336,
+              "deleted_docs": 0
+            }
+          },
+          "2": {
+            "_0": {
+              "num_docs": 5599,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5430,
+              "deleted_docs": 0
+            }
+          },
+          "3": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5393,
+              "deleted_docs": 0
+            }
+          },
+          "4": {
+            "_0": {
+              "num_docs": 5518,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5389,
+              "deleted_docs": 0
+            }
+          },
+          "5": {
+            "_0": {
+              "num_docs": 5558,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "6": {
+            "_0": {
+              "num_docs": 5662,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5477,
+              "deleted_docs": 0
+            }
+          },
+          "7": {
+            "_0": {
+              "num_docs": 5611,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5468,
+              "deleted_docs": 0
+            }
+          },
+          "8": {
+            "_0": {
+              "num_docs": 5436,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5395,
+              "deleted_docs": 0
+            }
+          },
+          "9": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5509,
+              "deleted_docs": 0
+            }
+          },
+          "10": {
+            "_0": {
+              "num_docs": 5570,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5418,
+              "deleted_docs": 0
+            }
+          },
+          "11": {
+            "_0": {
+              "num_docs": 5462,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5453,
+              "deleted_docs": 0
+            }
+          },
+          "12": {
+            "_0": {
+              "num_docs": 5721,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "13": {
+            "_0": {
+              "num_docs": 5615,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "14": {
+            "_0": {
+              "num_docs": 5582,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5427,
+              "deleted_docs": 0
+            }
+          },
+          "15": {
+            "_0": {
+              "num_docs": 5650,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5432,
+              "deleted_docs": 0
+            }
+          },
+          "16": {
+            "_0": {
+              "num_docs": 5472,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "17": {
+            "_0": {
+              "num_docs": 5426,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5424,
+              "deleted_docs": 0
+            }
+          }
+        }
+      },
+      "result_hash": "4bb75f0f61dca23d3c3096c7e7f26a6851ea992784ac3027abfb3aa687826dda",
+      "layout_after": {
+        "docs": {
+          "count": 198000,
+          "deleted": 0
+        },
+        "merges_total": 0,
+        "merges_current": 0,
+        "segments": {
+          "0": {
+            "_0": {
+              "num_docs": 5531,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5407,
+              "deleted_docs": 0
+            }
+          },
+          "1": {
+            "_0": {
+              "num_docs": 5587,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5336,
+              "deleted_docs": 0
+            }
+          },
+          "2": {
+            "_0": {
+              "num_docs": 5599,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5430,
+              "deleted_docs": 0
+            }
+          },
+          "3": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5393,
+              "deleted_docs": 0
+            }
+          },
+          "4": {
+            "_0": {
+              "num_docs": 5518,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5389,
+              "deleted_docs": 0
+            }
+          },
+          "5": {
+            "_0": {
+              "num_docs": 5558,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "6": {
+            "_0": {
+              "num_docs": 5662,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5477,
+              "deleted_docs": 0
+            }
+          },
+          "7": {
+            "_0": {
+              "num_docs": 5611,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5468,
+              "deleted_docs": 0
+            }
+          },
+          "8": {
+            "_0": {
+              "num_docs": 5436,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5395,
+              "deleted_docs": 0
+            }
+          },
+          "9": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5509,
+              "deleted_docs": 0
+            }
+          },
+          "10": {
+            "_0": {
+              "num_docs": 5570,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5418,
+              "deleted_docs": 0
+            }
+          },
+          "11": {
+            "_0": {
+              "num_docs": 5462,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5453,
+              "deleted_docs": 0
+            }
+          },
+          "12": {
+            "_0": {
+              "num_docs": 5721,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "13": {
+            "_0": {
+              "num_docs": 5615,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "14": {
+            "_0": {
+              "num_docs": 5582,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5427,
+              "deleted_docs": 0
+            }
+          },
+          "15": {
+            "_0": {
+              "num_docs": 5650,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5432,
+              "deleted_docs": 0
+            }
+          },
+          "16": {
+            "_0": {
+              "num_docs": 5472,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "17": {
+            "_0": {
+              "num_docs": 5426,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5424,
+              "deleted_docs": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "ceiling": 1024,
+      "replicate": 2,
+      "samples": [
+        15.842453001823742,
+        74.87299600325059,
+        16.5588050003862,
+        15.417645998240914,
+        66.49288000335218,
+        16.801074998511467,
+        16.215413001191337,
+        62.80495099781547,
+        15.632939997885842,
+        15.100238997547422,
+        68.51138299680315,
+        17.17155299411388,
+        16.271197993773967,
+        68.56529299693648,
+        93.64061000087531,
+        18.435687001328915,
+        15.236156003084034,
+        62.53532400296535,
+        15.814464997674804,
+        15.497352003876586,
+        65.80331400618888,
+        16.40095499897143,
+        15.482980001252145,
+        69.25615199725144,
+        16.063123002822977,
+        15.73196800018195,
+        66.43655800144188,
+        16.130892996443436,
+        89.52585800579982,
+        16.56871900195256,
+        15.568196999083739,
+        59.53521699848352,
+        16.04950199543964,
+        15.026959001261275,
+        69.12877499416936,
+        16.390771001169924,
+        15.178091001871508,
+        69.8490770009812,
+        16.782375001639593,
+        15.593164003803395,
+        66.60517400450772,
+        16.44252799451351,
+        96.81235199968796,
+        16.065602998423856,
+        68.69230800657533,
+        19.029552000574768,
+        74.21447899832856,
+        16.024966003897134,
+        15.686350998294074,
+        73.26762499724282,
+        19.224666997615714,
+        81.46829099860042,
+        15.581002000544686,
+        14.992283002356999,
+        68.43771499552531,
+        15.91819200257305,
+        99.47929099871544,
+        16.896342000109144,
+        60.123654002381954,
+        16.23533500242047,
+        15.785730000061449,
+        70.15559100545943,
+        16.547938997973688,
+        15.509796001424547,
+        67.30392100143945,
+        15.75241699902108,
+        15.80217199807521,
+        68.38920299924212,
+        15.91246099997079,
+        71.15522499952931,
+        46.56470000190893,
+        58.16317899734713,
+        15.745482996862847,
+        15.534204001596663,
+        70.10138699843083,
+        15.518002001044806,
+        15.45685499877436,
+        66.34885599487461,
+        15.672134999476839,
+        14.965291004045866,
+        66.20780699449824,
+        15.71760099614039,
+        15.607121000357438,
+        71.34312800189946,
+        37.22882299916819,
+        57.60390499926871,
+        15.595329001371283,
+        16.308393998770043,
+        68.92669599619694,
+        17.486892000306398,
+        15.329043002566323,
+        63.171567002427764,
+        15.467755998542998,
+        14.395489000889938,
+        67.71615400066366,
+        16.898795998713467,
+        15.317610996135045,
+        66.9345299975248,
+        15.935986994009,
+        25.205080994055606,
+        65.76810200203909,
+        15.362306003225967,
+        18.540024997491855,
+        61.76082699676044,
+        14.77287600573618,
+        14.73092599917436,
+        14.619062996644061,
+        55.64350000349805,
+        14.74114599841414,
+        14.582582996808924,
+        14.592322004318703,
+        52.5594189966796,
+        15.594837997923605,
+        16.493201001139823,
+        66.9318000000203,
+        15.673395995690953,
+        20.103807000850793,
+        15.292753996618558,
+        49.052975002268795,
+        15.536626997345593,
+        15.104486999916844,
+        14.100006999797188,
+        52.754058997379616,
+        16.616599998087622,
+        14.693082994199358,
+        14.39803300308995,
+        53.17950699827634,
+        14.728041001944803,
+        14.988936003646813,
+        14.820235999650322,
+        54.85186599980807,
+        18.3585699996911,
+        14.308002006146125,
+        66.29266899835784,
+        15.485850999539252,
+        14.80118900508387,
+        59.20324100588914,
+        14.931740995962173,
+        14.037453998753335,
+        14.012865998665802,
+        55.22786499932408,
+        14.805583996349014,
+        14.630584999395069,
+        14.777574993786402,
+        64.1558779971092,
+        15.167004996328615,
+        18.376874999376014,
+        65.14954700105591,
+        15.277614998922218,
+        14.402020002307836,
+        14.595980996091384,
+        55.77249500493053,
+        16.151395000633784,
+        14.603944997361396,
+        60.70550999720581,
+        14.74182799574919,
+        14.919203000317793,
+        14.63432200398529,
+        55.847829004051164,
+        15.597632998833433,
+        18.938292996608652,
+        57.27484099770663,
+        15.303354004572611,
+        14.876882996759377,
+        14.508954001939856,
+        52.784065999730956,
+        15.30635000381153,
+        14.90709099743981,
+        69.77466800162802,
+        15.07236399629619,
+        14.85231699916767,
+        70.38115999603178,
+        15.256013997714035,
+        15.015468001365662,
+        75.53859000472585,
+        19.026239999220707,
+        71.08039200102212,
+        14.97645800554892,
+        15.061113001138438,
+        14.403503999346867,
+        59.63555700145662,
+        14.787895001063589,
+        14.760411999304779,
+        61.24849100160645,
+        15.916180003841873,
+        14.952557001379319,
+        14.738721001776867,
+        53.41779099398991,
+        15.145965000556316,
+        17.65102200442925,
+        14.603718998841941,
+        52.09923999791499,
+        15.018917998531833,
+        15.543882000201847,
+        14.08247299696086,
+        55.456584006606136,
+        14.754059993720148,
+        14.762405997316819,
+        14.463066996540874,
+        59.30373700539349
+      ],
+      "took_ms": [
+        14,
+        72,
+        14,
+        13,
+        64,
+        14,
+        14,
+        60,
+        13,
+        13,
+        66,
+        14,
+        14,
+        66,
+        91,
+        15,
+        13,
+        60,
+        13,
+        13,
+        63,
+        14,
+        13,
+        67,
+        14,
+        13,
+        64,
+        14,
+        87,
+        14,
+        13,
+        57,
+        14,
+        13,
+        66,
+        13,
+        13,
+        67,
+        14,
+        13,
+        64,
+        14,
+        94,
+        13,
+        66,
+        14,
+        71,
+        14,
+        13,
+        71,
+        16,
+        79,
+        13,
+        13,
+        66,
+        14,
+        97,
+        14,
+        57,
+        14,
+        13,
+        67,
+        13,
+        13,
+        64,
+        13,
+        13,
+        66,
+        14,
+        69,
+        44,
+        56,
+        13,
+        13,
+        68,
+        13,
+        13,
+        64,
+        13,
+        13,
+        64,
+        13,
+        13,
+        69,
+        34,
+        55,
+        13,
+        14,
+        66,
+        15,
+        13,
+        61,
+        13,
+        12,
+        65,
+        14,
+        13,
+        65,
+        13,
+        22,
+        63,
+        13,
+        16,
+        59,
+        13,
+        13,
+        13,
+        53,
+        13,
+        13,
+        12,
+        51,
+        14,
+        14,
+        64,
+        13,
+        18,
+        13,
+        47,
+        13,
+        13,
+        12,
+        51,
+        14,
+        13,
+        12,
+        51,
+        13,
+        13,
+        13,
+        53,
+        16,
+        12,
+        64,
+        13,
+        13,
+        57,
+        13,
+        12,
+        12,
+        53,
+        13,
+        13,
+        13,
+        62,
+        13,
+        16,
+        63,
+        13,
+        12,
+        12,
+        53,
+        14,
+        13,
+        58,
+        12,
+        13,
+        13,
+        54,
+        13,
+        17,
+        55,
+        13,
+        13,
+        12,
+        51,
+        13,
+        13,
+        67,
+        13,
+        12,
+        68,
+        13,
+        13,
+        73,
+        17,
+        69,
+        13,
+        13,
+        12,
+        57,
+        13,
+        13,
+        58,
+        13,
+        13,
+        13,
+        51,
+        13,
+        16,
+        13,
+        50,
+        13,
+        13,
+        12,
+        53,
+        13,
+        13,
+        12,
+        57
+      ],
+      "block_medians": [
+        16.56376200116938,
+        15.285184497770388
+      ],
+      "cleanup": "clean",
+      "container_id": "cec21ca75895180f3228da9861b6b900110585f403d334a43ad8e7732db0b9e8",
+      "identity": {
+        "version": {
+          "distribution": "opensearch",
+          "number": "3.8.0",
+          "build_type": "tar",
+          "build_hash": "e5a3c5691be87af6c12dbe3e158c59c04ee72973",
+          "build_date": "2026-08-01T18:48:00.452816924Z",
+          "build_snapshot": false,
+          "lucene_version": "10.5.0",
+          "minimum_wire_compatibility_version": "2.19.0",
+          "minimum_index_compatibility_version": "2.0.0"
+        },
+        "jvm": {
+          "pid": 1,
+          "version": "25.0.4",
+          "vm_name": "OpenJDK 64-Bit Server VM",
+          "vm_version": "25.0.4+7-LTS",
+          "vm_vendor": "Eclipse Adoptium",
+          "bundled_jdk": true,
+          "using_bundled_jdk": true,
+          "start_time_in_millis": 1790569778507,
+          "mem": {
+            "heap_init_in_bytes": 2147483648,
+            "heap_max_in_bytes": 2147483648,
+            "non_heap_init_in_bytes": 7667712,
+            "non_heap_max_in_bytes": 0,
+            "direct_max_in_bytes": 0
+          },
+          "gc_collectors": [
+            "G1 Young Generation",
+            "G1 Concurrent GC",
+            "G1 Old Generation"
+          ],
+          "memory_pools": [
+            "CodeHeap 'non-nmethods'",
+            "Metaspace",
+            "CodeHeap 'profiled nmethods'",
+            "Compressed Class Space",
+            "G1 Eden Space",
+            "G1 Old Gen",
+            "G1 Survivor Space",
+            "CodeHeap 'non-profiled nmethods'"
+          ],
+          "using_compressed_ordinary_object_pointers": "true",
+          "input_arguments": [
+            "-Xshare:auto",
+            "-Dopensearch.networkaddress.cache.ttl=60",
+            "-Dopensearch.networkaddress.cache.negative.ttl=10",
+            "-XX:+AlwaysPreTouch",
+            "-Xss1m",
+            "-Djava.awt.headless=true",
+            "-Dfile.encoding=UTF-8",
+            "-Djna.nosys=true",
+            "-XX:-OmitStackTraceInFastThrow",
+            "-XX:+ShowCodeDetailsInExceptionMessages",
+            "-Dio.netty.noUnsafe=true",
+            "-Dio.netty.noKeySetOptimization=true",
+            "-Dio.netty.recycler.maxCapacityPerThread=0",
+            "-Dio.netty.allocator.numDirectArenas=0",
+            "-Dlog4j.shutdownHookEnabled=false",
+            "-Dlog4j2.disable.jmx=true",
+            "-Djava.locale.providers=SPI,CLDR",
+            "-Xms1g",
+            "-Xmx1g",
+            "-XX:+UseG1GC",
+            "-XX:G1ReservePercent=25",
+            "-XX:InitiatingHeapOccupancyPercent=30",
+            "-Djava.io.tmpdir=/tmp/opensearch-4635921373817749089",
+            "-XX:+HeapDumpOnOutOfMemoryError",
+            "-XX:HeapDumpPath=data",
+            "-XX:ErrorFile=logs/hs_err_pid%p.log",
+            "-Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m",
+            "--add-modules=jdk.incubator.vector",
+            "-javaagent:agent/opensearch-agent.jar",
+            "--add-opens=java.base/java.nio=ALL-UNNAMED",
+            "-Dorg.apache.lucene.store.MMapDirectory.sharedArenaMaxPermits=1",
+            "-XX:+UseCompactObjectHeaders",
+            "-Dclk.tck=100",
+            "-Djdk.attach.allowAttachSelf=true",
+            "-Djava.security.policy=/usr/share/opensearch/config/opensearch-performance-analyzer/opensearch_security.policy",
+            "--add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED",
+            "-Dopensearch.cgroups.hierarchy.override=/",
+            "-Xms2g",
+            "-Xmx2g",
+            "-XX:ActiveProcessorCount=2",
+            "-XX:MaxDirectMemorySize=1073741824",
+            "-Dopensearch.path.home=/usr/share/opensearch",
+            "-Dopensearch.path.conf=/usr/share/opensearch/config",
+            "-Dopensearch.distribution.type=tar",
+            "-Dopensearch.bundled_jdk=true"
+          ]
+        },
+        "image": {
+          "Id": "sha256:9c4d3b54042a402a11618658d5309121a349aeb60b375deba29334d033e65fc0",
+          "RepoDigests": [
+            "opensearchproject/opensearch@sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0"
+          ],
+          "Architecture": "amd64",
+          "Os": "linux",
+          "tag": "opensearchproject/opensearch:3.8.0",
+          "pinned_reference": "opensearchproject/opensearch@sha256:68a688de28fb9bb66601552650b91a52a9fd5e7eac5481dd2b225ecb66fd09b0"
+        }
+      },
+      "layout_before": {
+        "docs": {
+          "count": 198000,
+          "deleted": 0
+        },
+        "merges_total": 0,
+        "merges_current": 0,
+        "segments": {
+          "0": {
+            "_0": {
+              "num_docs": 5531,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5407,
+              "deleted_docs": 0
+            }
+          },
+          "1": {
+            "_0": {
+              "num_docs": 5587,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5336,
+              "deleted_docs": 0
+            }
+          },
+          "2": {
+            "_0": {
+              "num_docs": 5599,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5430,
+              "deleted_docs": 0
+            }
+          },
+          "3": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5393,
+              "deleted_docs": 0
+            }
+          },
+          "4": {
+            "_0": {
+              "num_docs": 5518,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5389,
+              "deleted_docs": 0
+            }
+          },
+          "5": {
+            "_0": {
+              "num_docs": 5558,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "6": {
+            "_0": {
+              "num_docs": 5662,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5477,
+              "deleted_docs": 0
+            }
+          },
+          "7": {
+            "_0": {
+              "num_docs": 5611,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5468,
+              "deleted_docs": 0
+            }
+          },
+          "8": {
+            "_0": {
+              "num_docs": 5436,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5395,
+              "deleted_docs": 0
+            }
+          },
+          "9": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5509,
+              "deleted_docs": 0
+            }
+          },
+          "10": {
+            "_0": {
+              "num_docs": 5570,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5418,
+              "deleted_docs": 0
+            }
+          },
+          "11": {
+            "_0": {
+              "num_docs": 5462,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5453,
+              "deleted_docs": 0
+            }
+          },
+          "12": {
+            "_0": {
+              "num_docs": 5721,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "13": {
+            "_0": {
+              "num_docs": 5615,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "14": {
+            "_0": {
+              "num_docs": 5582,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5427,
+              "deleted_docs": 0
+            }
+          },
+          "15": {
+            "_0": {
+              "num_docs": 5650,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5432,
+              "deleted_docs": 0
+            }
+          },
+          "16": {
+            "_0": {
+              "num_docs": 5472,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "17": {
+            "_0": {
+              "num_docs": 5426,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5424,
+              "deleted_docs": 0
+            }
+          }
+        }
+      },
+      "result_hash": "4bb75f0f61dca23d3c3096c7e7f26a6851ea992784ac3027abfb3aa687826dda",
+      "layout_after": {
+        "docs": {
+          "count": 198000,
+          "deleted": 0
+        },
+        "merges_total": 0,
+        "merges_current": 0,
+        "segments": {
+          "0": {
+            "_0": {
+              "num_docs": 5531,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5407,
+              "deleted_docs": 0
+            }
+          },
+          "1": {
+            "_0": {
+              "num_docs": 5587,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5336,
+              "deleted_docs": 0
+            }
+          },
+          "2": {
+            "_0": {
+              "num_docs": 5599,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5430,
+              "deleted_docs": 0
+            }
+          },
+          "3": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5393,
+              "deleted_docs": 0
+            }
+          },
+          "4": {
+            "_0": {
+              "num_docs": 5518,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5389,
+              "deleted_docs": 0
+            }
+          },
+          "5": {
+            "_0": {
+              "num_docs": 5558,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "6": {
+            "_0": {
+              "num_docs": 5662,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5477,
+              "deleted_docs": 0
+            }
+          },
+          "7": {
+            "_0": {
+              "num_docs": 5611,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5468,
+              "deleted_docs": 0
+            }
+          },
+          "8": {
+            "_0": {
+              "num_docs": 5436,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5395,
+              "deleted_docs": 0
+            }
+          },
+          "9": {
+            "_0": {
+              "num_docs": 5500,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5509,
+              "deleted_docs": 0
+            }
+          },
+          "10": {
+            "_0": {
+              "num_docs": 5570,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5418,
+              "deleted_docs": 0
+            }
+          },
+          "11": {
+            "_0": {
+              "num_docs": 5462,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5453,
+              "deleted_docs": 0
+            }
+          },
+          "12": {
+            "_0": {
+              "num_docs": 5721,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5561,
+              "deleted_docs": 0
+            }
+          },
+          "13": {
+            "_0": {
+              "num_docs": 5615,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "14": {
+            "_0": {
+              "num_docs": 5582,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5427,
+              "deleted_docs": 0
+            }
+          },
+          "15": {
+            "_0": {
+              "num_docs": 5650,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5432,
+              "deleted_docs": 0
+            }
+          },
+          "16": {
+            "_0": {
+              "num_docs": 5472,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5460,
+              "deleted_docs": 0
+            }
+          },
+          "17": {
+            "_0": {
+              "num_docs": 5426,
+              "deleted_docs": 0
+            },
+            "_1": {
+              "num_docs": 5424,
+              "deleted_docs": 0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "elapsed_seconds": 117.4688086219976
+}
