@@ -1,0 +1,13 @@
+{
+  "generator": "run_comparison.py",
+  "source_sha": "2b23427c439fe1ffdaece44b2629ac82fd80112c",
+  "started_at": "2026-09-28T04:18:21.803212Z",
+  "finished_at": "2026-09-28T04:46:38.752951Z",
+  "elapsed_seconds": 1696.9497224160004,
+  "os": "Linux",
+  "kernel": "6.18.33.2-microsoft-standard-WSL2",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.42",
+  "cpu_count": 16,
+  "cpu_model": "AMD Ryzen 7 7800X3D 8-Core Processor",
+  "ram_bytes": 47342800896
+}

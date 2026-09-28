@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560">
+<rect width="100%" height="100%" fill="white"/>
+<text x="600.0" y="28.0" font-family="sans-serif" font-size="18px" text-anchor="middle" fill="#222" font-weight="bold">Keyword-sort latency by clause limit</text>
+<text x="600.0" y="48.0" font-family="sans-serif" font-size="11px" text-anchor="middle" fill="#555" font-weight="normal">Client latency for repeated searches of the first page</text>
+<text x="600.0" y="64.0" font-family="sans-serif" font-size="11px" text-anchor="middle" fill="#555" font-weight="normal">Compare settings within each release. Each setting was tested in two separately started containers.</text>
+<line x1="90" y1="475.0" x2="1160" y2="475.0" stroke="#ddd"/>
+<text x="80.0" y="479.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">0.0</text>
+<line x1="90" y1="381.2" x2="1160" y2="381.2" stroke="#ddd"/>
+<text x="80.0" y="385.2" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">8.3</text>
+<line x1="90" y1="287.5" x2="1160" y2="287.5" stroke="#ddd"/>
+<text x="80.0" y="291.5" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">16.5</text>
+<line x1="90" y1="193.8" x2="1160" y2="193.8" stroke="#ddd"/>
+<text x="80.0" y="197.8" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">24.8</text>
+<line x1="90" y1="100.0" x2="1160" y2="100.0" stroke="#ddd"/>
+<text x="80.0" y="104.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">33.1</text>
+<line x1="90" y1="100" x2="90" y2="475" stroke="#333"/>
+<line x1="90" y1="475" x2="1160" y2="475" stroke="#333"/>
+<text x="25.0" y="287.5" font-family="sans-serif" font-size="12px" text-anchor="middle" fill="#222" font-weight="normal">ms</text>
+<text x="197.0" y="503.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">1.3.20</text>
+<rect x="137.1" y="403.3" width="55" height="71.7" fill="#d95f02"/>
+<text x="164.6" y="394.3" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">6.3 / 6.3</text>
+<text x="164.6" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">1024</text>
+<rect x="197.0" y="394.5" width="55" height="80.5" fill="#1b75bc"/>
+<text x="224.5" y="385.5" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">6.9 / 7.3</text>
+<text x="224.5" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">128</text>
+<text x="411.0" y="503.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.11.1</text>
+<rect x="351.1" y="384.0" width="55" height="91.0" fill="#d95f02"/>
+<text x="378.6" y="375.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">7.9 / 8.2</text>
+<text x="378.6" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">1024</text>
+<rect x="411.0" y="382.7" width="55" height="92.3" fill="#1b75bc"/>
+<text x="438.5" y="373.7" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">8.1 / 8.2</text>
+<text x="438.5" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">128</text>
+<text x="625.0" y="503.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.12.0</text>
+<rect x="565.1" y="241.5" width="55" height="233.5" fill="#d95f02"/>
+<text x="592.6" y="232.5" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">20.3 / 20.9</text>
+<text x="592.6" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">1024</text>
+<rect x="625.0" y="401.4" width="55" height="73.6" fill="#1b75bc"/>
+<text x="652.5" y="392.4" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">6.5 / 6.5</text>
+<text x="652.5" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">128</text>
+<text x="839.0" y="503.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.19.0</text>
+<rect x="779.1" y="206.5" width="55" height="268.5" fill="#d95f02"/>
+<text x="806.6" y="197.5" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">26.5 / 20.9</text>
+<text x="806.6" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">1024</text>
+<rect x="839.0" y="395.8" width="55" height="79.2" fill="#1b75bc"/>
+<text x="866.5" y="386.8" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">7.1 / 6.9</text>
+<text x="866.5" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">128</text>
+<text x="1053.0" y="503.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">3.8.0</text>
+<rect x="993.1" y="297.8" width="55" height="177.2" fill="#d95f02"/>
+<text x="1020.6" y="288.8" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">15.8 / 15.4</text>
+<text x="1020.6" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">1024</text>
+<rect x="1053.0" y="396.0" width="55" height="79.0" fill="#1b75bc"/>
+<text x="1080.5" y="387.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">7.0 / 7.0</text>
+<text x="1080.5" y="489.0" font-family="sans-serif" font-size="10px" text-anchor="middle" fill="#222" font-weight="normal">128</text>
+<rect x="400" y="78" width="14" height="14" fill="#d95f02"/>
+<text x="420.0" y="90.0" font-family="sans-serif" font-size="11px" text-anchor="start" fill="#222" font-weight="normal">Default limit: 1024</text>
+<rect x="650" y="78" width="14" height="14" fill="#1b75bc"/>
+<text x="670.0" y="90.0" font-family="sans-serif" font-size="11px" text-anchor="start" fill="#222" font-weight="normal">Lowered limit: 128</text>
+</svg>

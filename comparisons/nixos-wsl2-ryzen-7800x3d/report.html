@@ -1,0 +1,251 @@
+<!doctype html><meta charset="utf-8"><title>Matrix repeatability</title><style>body{font-family:sans-serif;max-width:1240px;margin:auto}svg{width:100%}pre{white-space:pre-wrap}</style><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 490">
+<rect width="1240" height="100%" fill="white"/>
+<text x="620.0" y="25.0" font-family="sans-serif" font-size="19px" text-anchor="middle" fill="#222" font-weight="bold">Paired speedups across matrices</text>
+<text x="620.0" y="47.0" font-family="sans-serif" font-size="12px" text-anchor="middle" fill="#222" font-weight="normal">Two points per dataset/version: fresh opposite-order pairs, not independent requests or confidence intervals</text>
+<text x="90.0" y="70.0" font-family="sans-serif" font-size="12px" text-anchor="start" fill="#0072b2" font-weight="normal">local-1</text>
+<text x="370.0" y="70.0" font-family="sans-serif" font-size="12px" text-anchor="start" fill="#d55e00" font-weight="normal">local-2</text>
+<text x="650.0" y="70.0" font-family="sans-serif" font-size="12px" text-anchor="start" fill="#009e73" font-weight="normal">local-3</text>
+<text x="930.0" y="70.0" font-family="sans-serif" font-size="12px" text-anchor="start" fill="#666666" font-weight="normal">actions (reference)</text>
+<text x="90.0" y="96.0" font-family="sans-serif" font-size="13px" text-anchor="start" fill="#222" font-weight="bold">1024 / 128 speedup (×)</text>
+<path d="M90 410.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="414.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">0.00</text>
+<path d="M90 335.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="339.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">1.08</text>
+<path d="M90 260.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="264.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">2.15</text>
+<path d="M90 185.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="189.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">3.23</text>
+<path d="M90 110.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="114.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">4.31</text>
+<path d="M90 340.33 H1210" stroke="#777" stroke-dasharray="4,4"/>
+<text x="202.0" y="434.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">1.3.20</text>
+<circle cx="115.00" cy="345.86" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 1.3.20 pair 1: 0.920625</title></circle>
+<circle cx="121.00" cy="349.89" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 1.3.20 pair 2: 0.862770</title></circle>
+<circle cx="171.00" cy="339.72" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 1.3.20 pair 1: 1.008656</title></circle>
+<circle cx="177.00" cy="341.02" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 1.3.20 pair 2: 0.990105</title></circle>
+<circle cx="227.00" cy="341.46" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 1.3.20 pair 1: 0.983668</title></circle>
+<circle cx="233.00" cy="341.40" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 1.3.20 pair 2: 0.984528</title></circle>
+<circle cx="283.00" cy="334.75" r="4" fill="#666666" fill-opacity=".8"><title>actions 1.3.20 pair 1: 1.080030</title></circle>
+<circle cx="289.00" cy="342.80" r="4" fill="#666666" fill-opacity=".8"><title>actions 1.3.20 pair 2: 0.964519</title></circle>
+<text x="426.0" y="434.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.11.1</text>
+<circle cx="339.00" cy="341.88" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.11.1 pair 1: 0.977690</title></circle>
+<circle cx="345.00" cy="340.72" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.11.1 pair 2: 0.994391</title></circle>
+<circle cx="395.00" cy="340.50" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.11.1 pair 1: 0.997510</title></circle>
+<circle cx="401.00" cy="339.27" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.11.1 pair 2: 1.015106</title></circle>
+<circle cx="451.00" cy="339.68" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.11.1 pair 1: 1.009247</title></circle>
+<circle cx="457.00" cy="338.55" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.11.1 pair 2: 1.025478</title></circle>
+<circle cx="507.00" cy="340.29" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.11.1 pair 1: 1.000458</title></circle>
+<circle cx="513.00" cy="342.55" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.11.1 pair 2: 0.968124</title></circle>
+<text x="650.0" y="434.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.12.0</text>
+<circle cx="563.00" cy="192.74" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.12.0 pair 1: 3.118321</title></circle>
+<circle cx="569.00" cy="185.27" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.12.0 pair 2: 3.225504</title></circle>
+<circle cx="619.00" cy="197.49" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.12.0 pair 1: 3.050025</title></circle>
+<circle cx="625.00" cy="190.40" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.12.0 pair 2: 3.151858</title></circle>
+<circle cx="675.00" cy="190.17" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.12.0 pair 1: 3.155114</title></circle>
+<circle cx="681.00" cy="195.53" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.12.0 pair 2: 3.078257</title></circle>
+<circle cx="731.00" cy="216.84" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.12.0 pair 1: 2.772401</title></circle>
+<circle cx="737.00" cy="189.32" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.12.0 pair 2: 3.167390</title></circle>
+<text x="874.0" y="434.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.19.0</text>
+<circle cx="787.00" cy="149.13" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.19.0 pair 1: 3.744176</title></circle>
+<circle cx="793.00" cy="199.00" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.19.0 pair 2: 3.028484</title></circle>
+<circle cx="843.00" cy="191.70" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.19.0 pair 1: 3.133204</title></circle>
+<circle cx="849.00" cy="195.50" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.19.0 pair 2: 3.078701</title></circle>
+<circle cx="899.00" cy="188.90" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.19.0 pair 1: 3.173427</title></circle>
+<circle cx="905.00" cy="187.62" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.19.0 pair 2: 3.191771</title></circle>
+<circle cx="955.00" cy="234.73" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.19.0 pair 1: 2.515564</title></circle>
+<circle cx="961.00" cy="246.78" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.19.0 pair 2: 2.342634</title></circle>
+<text x="1098.0" y="434.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">3.8.0</text>
+<circle cx="1011.00" cy="251.52" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 3.8.0 pair 1: 2.274585</title></circle>
+<circle cx="1017.00" cy="256.04" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 3.8.0 pair 2: 2.209758</title></circle>
+<circle cx="1067.00" cy="251.01" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 3.8.0 pair 1: 2.281975</title></circle>
+<circle cx="1073.00" cy="250.64" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 3.8.0 pair 2: 2.287200</title></circle>
+<circle cx="1123.00" cy="266.01" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 3.8.0 pair 1: 2.066650</title></circle>
+<circle cx="1129.00" cy="251.62" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 3.8.0 pair 2: 2.273151</title></circle>
+<circle cx="1179.00" cy="267.41" r="4" fill="#666666" fill-opacity=".8"><title>actions 3.8.0 pair 1: 2.046551</title></circle>
+<circle cx="1185.00" cy="266.58" r="4" fill="#666666" fill-opacity=".8"><title>actions 3.8.0 pair 2: 2.058525</title></circle>
+</svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 880">
+<rect width="1240" height="100%" fill="white"/>
+<text x="620.0" y="25.0" font-family="sans-serif" font-size="19px" text-anchor="middle" fill="#222" font-weight="bold">Client latency across matrices</text>
+<text x="620.0" y="47.0" font-family="sans-serif" font-size="12px" text-anchor="middle" fill="#222" font-weight="normal">Two points per dataset/version: fresh opposite-order pairs, not independent requests or confidence intervals</text>
+<text x="90.0" y="70.0" font-family="sans-serif" font-size="12px" text-anchor="start" fill="#0072b2" font-weight="normal">local-1</text>
+<text x="370.0" y="70.0" font-family="sans-serif" font-size="12px" text-anchor="start" fill="#d55e00" font-weight="normal">local-2</text>
+<text x="650.0" y="70.0" font-family="sans-serif" font-size="12px" text-anchor="start" fill="#009e73" font-weight="normal">local-3</text>
+<text x="930.0" y="70.0" font-family="sans-serif" font-size="12px" text-anchor="start" fill="#666666" font-weight="normal">actions (reference)</text>
+<text x="90.0" y="96.0" font-family="sans-serif" font-size="13px" text-anchor="start" fill="#222" font-weight="bold">Ceiling 1024 — client ms</text>
+<path d="M90 410.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="414.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">0.00</text>
+<path d="M90 335.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="339.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">29.26</text>
+<path d="M90 260.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="264.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">58.53</text>
+<path d="M90 185.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="189.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">87.79</text>
+<path d="M90 110.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="114.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">117.05</text>
+<text x="202.0" y="434.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">1.3.20</text>
+<circle cx="115.00" cy="393.76" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 1.3.20 pair 1: 6.337221</title></circle>
+<circle cx="121.00" cy="393.82" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 1.3.20 pair 2: 6.313693</title></circle>
+<circle cx="171.00" cy="393.94" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 1.3.20 pair 1: 6.266391</title></circle>
+<circle cx="177.00" cy="392.62" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 1.3.20 pair 2: 6.781430</title></circle>
+<circle cx="227.00" cy="394.04" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 1.3.20 pair 1: 6.226114</title></circle>
+<circle cx="233.00" cy="392.76" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 1.3.20 pair 2: 6.725419</title></circle>
+<circle cx="283.00" cy="327.23" r="4" fill="#666666" fill-opacity=".8"><title>actions 1.3.20 pair 1: 32.295065</title></circle>
+<circle cx="289.00" cy="332.86" r="4" fill="#666666" fill-opacity=".8"><title>actions 1.3.20 pair 2: 30.099102</title></circle>
+<text x="426.0" y="434.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.11.1</text>
+<circle cx="339.00" cy="389.77" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.11.1 pair 1: 7.892290</title></circle>
+<circle cx="345.00" cy="389.09" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.11.1 pair 2: 8.160234</title></circle>
+<circle cx="395.00" cy="389.03" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.11.1 pair 1: 8.181638</title></circle>
+<circle cx="401.00" cy="389.16" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.11.1 pair 2: 8.131972</title></circle>
+<circle cx="451.00" cy="389.61" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.11.1 pair 1: 7.957191</title></circle>
+<circle cx="457.00" cy="389.14" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.11.1 pair 2: 8.140691</title></circle>
+<circle cx="507.00" cy="291.65" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.11.1 pair 1: 46.175582</title></circle>
+<circle cx="513.00" cy="291.03" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.11.1 pair 2: 46.418556</title></circle>
+<text x="650.0" y="434.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.12.0</text>
+<circle cx="563.00" cy="358.00" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.12.0 pair 1: 20.289353</title></circle>
+<circle cx="569.00" cy="356.41" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.12.0 pair 2: 20.908887</title></circle>
+<circle cx="619.00" cy="358.76" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.12.0 pair 1: 19.993985</title></circle>
+<circle cx="625.00" cy="358.01" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.12.0 pair 2: 20.284576</title></circle>
+<circle cx="675.00" cy="356.78" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.12.0 pair 1: 20.763375</title></circle>
+<circle cx="681.00" cy="357.69" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.12.0 pair 2: 20.410004</title></circle>
+<circle cx="731.00" cy="227.79" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.12.0 pair 1: 71.094595</title></circle>
+<circle cx="737.00" cy="215.19" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.12.0 pair 2: 76.009292</title></circle>
+<text x="874.0" y="434.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.19.0</text>
+<circle cx="787.00" cy="342.17" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.19.0 pair 1: 26.466898</title></circle>
+<circle cx="793.00" cy="356.40" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.19.0 pair 2: 20.912996</title></circle>
+<circle cx="843.00" cy="353.08" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.19.0 pair 1: 22.208592</title></circle>
+<circle cx="849.00" cy="354.13" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.19.0 pair 2: 21.798597</title></circle>
+<circle cx="899.00" cy="352.15" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.19.0 pair 1: 22.570617</title></circle>
+<circle cx="905.00" cy="352.36" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.19.0 pair 2: 22.489049</title></circle>
+<circle cx="955.00" cy="149.13" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.19.0 pair 1: 101.783704</title></circle>
+<circle cx="961.00" cy="174.13" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.19.0 pair 2: 92.029366</title></circle>
+<text x="1098.0" y="434.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">3.8.0</text>
+<circle cx="1011.00" cy="369.40" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 3.8.0 pair 1: 15.840459</title></circle>
+<circle cx="1017.00" cy="370.48" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 3.8.0 pair 2: 15.418994</title></circle>
+<circle cx="1067.00" cy="368.83" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 3.8.0 pair 1: 16.062545</title></circle>
+<circle cx="1073.00" cy="369.19" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 3.8.0 pair 2: 15.924473</title></circle>
+<circle cx="1123.00" cy="372.92" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 3.8.0 pair 1: 14.467556</title></circle>
+<circle cx="1129.00" cy="369.14" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 3.8.0 pair 2: 15.944332</title></circle>
+<circle cx="1179.00" cy="209.32" r="4" fill="#666666" fill-opacity=".8"><title>actions 3.8.0 pair 1: 78.299492</title></circle>
+<circle cx="1185.00" cy="211.75" r="4" fill="#666666" fill-opacity=".8"><title>actions 3.8.0 pair 2: 77.352149</title></circle>
+<text x="90.0" y="486.0" font-family="sans-serif" font-size="13px" text-anchor="start" fill="#222" font-weight="bold">Ceiling 128 — client ms</text>
+<path d="M90 800.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="804.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">0.00</text>
+<path d="M90 725.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="729.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">29.26</text>
+<path d="M90 650.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="654.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">58.53</text>
+<path d="M90 575.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="579.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">87.79</text>
+<path d="M90 500.00 H1210" stroke="#ddd"/>
+<text x="80.0" y="504.0" font-family="sans-serif" font-size="11px" text-anchor="end" fill="#222" font-weight="normal">117.05</text>
+<text x="202.0" y="824.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">1.3.20</text>
+<circle cx="115.00" cy="782.36" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 1.3.20 pair 1: 6.883611</title></circle>
+<circle cx="121.00" cy="781.24" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 1.3.20 pair 2: 7.317935</title></circle>
+<circle cx="171.00" cy="784.08" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 1.3.20 pair 1: 6.212612</title></circle>
+<circle cx="177.00" cy="782.45" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 1.3.20 pair 2: 6.849204</title></circle>
+<circle cx="227.00" cy="783.78" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 1.3.20 pair 1: 6.329489</title></circle>
+<circle cx="233.00" cy="782.49" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 1.3.20 pair 2: 6.831109</title></circle>
+<circle cx="283.00" cy="723.36" r="4" fill="#666666" fill-opacity=".8"><title>actions 1.3.20 pair 1: 29.901999</title></circle>
+<circle cx="289.00" cy="720.02" r="4" fill="#666666" fill-opacity=".8"><title>actions 1.3.20 pair 2: 31.206339</title></circle>
+<text x="426.0" y="824.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.11.1</text>
+<circle cx="339.00" cy="779.31" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.11.1 pair 1: 8.072385</title></circle>
+<circle cx="345.00" cy="778.97" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.11.1 pair 2: 8.206259</title></circle>
+<circle cx="395.00" cy="778.98" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.11.1 pair 1: 8.202058</title></circle>
+<circle cx="401.00" cy="779.47" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.11.1 pair 2: 8.010959</title></circle>
+<circle cx="451.00" cy="779.79" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.11.1 pair 1: 7.884287</title></circle>
+<circle cx="457.00" cy="779.65" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.11.1 pair 2: 7.938439</title></circle>
+<circle cx="507.00" cy="681.71" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.11.1 pair 1: 46.154446</title></circle>
+<circle cx="513.00" cy="677.11" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.11.1 pair 2: 47.946915</title></circle>
+<text x="650.0" y="824.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.12.0</text>
+<circle cx="563.00" cy="783.32" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.12.0 pair 1: 6.506498</title></circle>
+<circle cx="569.00" cy="783.39" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.12.0 pair 2: 6.482362</title></circle>
+<circle cx="619.00" cy="783.20" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.12.0 pair 1: 6.555351</title></circle>
+<circle cx="625.00" cy="783.51" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.12.0 pair 2: 6.435751</title></circle>
+<circle cx="675.00" cy="783.13" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.12.0 pair 1: 6.580864</title></circle>
+<circle cx="681.00" cy="783.01" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.12.0 pair 2: 6.630376</title></circle>
+<circle cx="731.00" cy="734.28" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.12.0 pair 1: 25.643695</title></circle>
+<circle cx="737.00" cy="738.50" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.12.0 pair 2: 23.997449</title></circle>
+<text x="874.0" y="824.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">2.19.0</text>
+<circle cx="787.00" cy="781.88" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.19.0 pair 1: 7.068817</title></circle>
+<circle cx="793.00" cy="782.30" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 2.19.0 pair 2: 6.905433</title></circle>
+<circle cx="843.00" cy="781.83" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.19.0 pair 1: 7.088141</title></circle>
+<circle cx="849.00" cy="781.85" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 2.19.0 pair 2: 7.080453</title></circle>
+<circle cx="899.00" cy="781.77" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.19.0 pair 1: 7.112379</title></circle>
+<circle cx="905.00" cy="781.94" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 2.19.0 pair 2: 7.045946</title></circle>
+<circle cx="955.00" cy="696.30" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.19.0 pair 1: 40.461588</title></circle>
+<circle cx="961.00" cy="699.31" r="4" fill="#666666" fill-opacity=".8"><title>actions 2.19.0 pair 2: 39.284575</title></circle>
+<text x="1098.0" y="824.0" font-family="sans-serif" font-size="13px" text-anchor="middle" fill="#222" font-weight="bold">3.8.0</text>
+<circle cx="1011.00" cy="782.15" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 3.8.0 pair 1: 6.964109</title></circle>
+<circle cx="1017.00" cy="782.12" r="4" fill="#0072b2" fill-opacity=".8"><title>local-1 3.8.0 pair 2: 6.977685</title></circle>
+<circle cx="1067.00" cy="781.96" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 3.8.0 pair 1: 7.038879</title></circle>
+<circle cx="1073.00" cy="782.16" r="4" fill="#d55e00" fill-opacity=".8"><title>local-2 3.8.0 pair 2: 6.962432</title></circle>
+<circle cx="1123.00" cy="782.06" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 3.8.0 pair 1: 7.000486</title></circle>
+<circle cx="1129.00" cy="782.02" r="4" fill="#009e73" fill-opacity=".8"><title>local-3 3.8.0 pair 2: 7.014198</title></circle>
+<circle cx="1179.00" cy="701.94" r="4" fill="#666666" fill-opacity=".8"><title>actions 3.8.0 pair 1: 38.259239</title></circle>
+<circle cx="1185.00" cy="703.69" r="4" fill="#666666" fill-opacity=".8"><title>actions 3.8.0 pair 2: 37.576501</title></circle>
+</svg><pre># Whole-matrix repeatability comparison
+
+**Retained evidence checks: PASS.** No requests were pooled.
+
+Repetitions: local-1, local-2, local-3. Reference: actions.
+A reference is displayed separately and excluded from repetition spreads. Dataset labels do not establish independent physical hosts.
+
+## Client summaries by matrix
+
+| Version | Dataset | 1024 median ms | 128 median ms | Paired client speedups | Paired server `took` speedups |
+|---|---|---:|---:|---|---|
+| 1.3.20 | [local-1](datasets/local-1/summary.md) | 6.325 | 7.101 | 0.921×, 0.863× | 0.900×, 0.800× |
+| 1.3.20 | [local-2](datasets/local-2/summary.md) | 6.524 | 6.531 | 1.009×, 0.990× | 1.062×, 1.000× |
+| 1.3.20 | [local-3](datasets/local-3/summary.md) | 6.476 | 6.580 | 0.984×, 0.985× | 1.000×, 1.000× |
+| 1.3.20 | [actions](datasets/actions/summary.md) | 31.197 | 30.554 | 1.080×, 0.965× | 1.078×, 0.981× |
+| 2.11.1 | [local-1](datasets/local-1/summary.md) | 8.026 | 8.139 | 0.978×, 0.994× | 0.923×, 1.000× |
+| 2.11.1 | [local-2](datasets/local-2/summary.md) | 8.157 | 8.107 | 0.998×, 1.015× | 1.000×, 1.083× |
+| 2.11.1 | [local-3](datasets/local-3/summary.md) | 8.049 | 7.911 | 1.009×, 1.025× | 1.000×, 1.083× |
+| 2.11.1 | [actions](datasets/actions/summary.md) | 46.297 | 47.051 | 1.000×, 0.968× | 0.994×, 0.960× |
+| 2.12.0 | [local-1](datasets/local-1/summary.md) | 20.599 | 6.494 | 3.118×, 3.226× | 3.944×, 4.111× |
+| 2.12.0 | [local-2](datasets/local-2/summary.md) | 20.139 | 6.496 | 3.050×, 3.152× | 3.944×, 3.944× |
+| 2.12.0 | [local-3](datasets/local-3/summary.md) | 20.587 | 6.606 | 3.155×, 3.078× | 4.111×, 4.111× |
+| 2.12.0 | [actions](datasets/actions/summary.md) | 73.552 | 24.821 | 2.772×, 3.167× | 3.067×, 3.561× |
+| 2.19.0 | [local-1](datasets/local-1/summary.md) | 23.690 | 6.987 | 3.744×, 3.028× | 4.700×, 3.600× |
+| 2.19.0 | [local-2](datasets/local-2/summary.md) | 22.004 | 7.084 | 3.133×, 3.079× | 3.950×, 3.667× |
+| 2.19.0 | [local-3](datasets/local-3/summary.md) | 22.530 | 7.079 | 3.173×, 3.192× | 3.636×, 4.000× |
+| 2.19.0 | [actions](datasets/actions/summary.md) | 96.907 | 39.873 | 2.516×, 2.343× | 2.766×, 2.566× |
+| 3.8.0 | [local-1](datasets/local-1/summary.md) | 15.630 | 6.971 | 2.275×, 2.210× | 2.700×, 2.600× |
+| 3.8.0 | [local-2](datasets/local-2/summary.md) | 15.994 | 7.001 | 2.282×, 2.287× | 2.700×, 2.700× |
+| 3.8.0 | [local-3](datasets/local-3/summary.md) | 15.206 | 7.007 | 2.067×, 2.273× | 2.500×, 2.700× |
+| 3.8.0 | [actions](datasets/actions/summary.md) | 77.826 | 37.918 | 2.047×, 2.059× | 2.220×, 2.214× |
+
+## Spread across repetitions (reference excluded)
+
+| Version | All paired ratios min / median / max | Ratio relative range | 1024 round-median relative range | 128 round-median relative range | Spread flag |
+|---|---|---:|---:|---:|---|
+| 1.3.20 | 0.863 / 0.984 / 1.009 | 14.8% | 3.1% | 8.7% | no |
+| 2.11.1 | 0.978 / 1.003 / 1.025 | 4.8% | 1.6% | 2.8% | no |
+| 2.12.0 | 3.050 / 3.135 / 3.226 | 5.6% | 2.2% | 1.7% | no |
+| 2.19.0 | 3.028 / 3.153 / 3.744 | 22.7% | 7.5% | 1.4% | YES |
+| 3.8.0 | 2.067 / 2.274 / 2.287 | 9.7% | 5.0% | 0.5% | no |
+
+Relative range = (maximum − minimum) / median. Each setting&#x27;s round value is the median of its two fresh-JVM cell summaries. Ratio spread includes both opposite-order pairs in every repetition.
+Flags (&gt;15% paired-ratio range or &gt;20% setting round-median range) are descriptive diagnostics, **not validity gates or confidence intervals**. Keep every qualified observation, including outliers. Few repetitions do not estimate a host population.
+
+## Block drift
+
+The following cells differ by more than 20% between their two client block medians. This does not identify the cause or invalidate the retained response/layout checks; it warns against assuming steady-state timing.
+
+- local-1, 2.19.0, JVM 1, ceiling 1024: 30.155 → 22.778 ms (-24.5%).
+- actions, 2.12.0, JVM 1, ceiling 1024: 80.439 → 61.750 ms (-23.2%).
+- actions, 2.19.0, JVM 1, ceiling 1024: 114.139 → 89.428 ms (-21.7%).
+- actions, 2.19.0, JVM 4, ceiling 1024: 105.859 → 78.199 ms (-26.1%).
+- actions, 3.8.0, JVM 1, ceiling 1024: 88.862 → 67.737 ms (-23.8%).
+
+## Provenance
+
+- local-1: source `2b23427c439fe1ffdaece44b2629ac82fd80112c`, run `local`; [raw records](datasets/local-1/raw).
+- local-2: source `2b23427c439fe1ffdaece44b2629ac82fd80112c`, run `local`; [raw records](datasets/local-2/raw).
+- local-3: source `2b23427c439fe1ffdaece44b2629ac82fd80112c`, run `local`; [raw records](datasets/local-3/raw).
+- actions: source `3ed6bdcb3067af8f0a6dda4fd695473f07dac94f`, run `https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/runs/36336273811`; [raw records](datasets/actions/raw).
+
+[Paired ratios](ratios.svg) · [Absolute latency](latency.svg) · [Standalone HTML](report.html)
+
+Engine/image identities, parameters, query and oracle hashes agree across datasets. Each matrix is separately validated; source/run provenance may differ. Source equality, live responses, host isolation, warmup sufficiency and actual cleanup are not independently certified by this offline comparison. Per-dataset reports preserve the runner/reporter evidence distinction.
+</pre>

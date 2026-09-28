@@ -1,0 +1,77 @@
+{
+  "captured_at": "2026-09-28T04:15:41.410531Z",
+  "source_sha": "2b23427c439fe1ffdaece44b2629ac82fd80112c",
+  "base_sha": "2b23427c439fe1ffdaece44b2629ac82fd80112c",
+  "machine": {
+    "os": {
+      "pretty_name": "NixOS 26.11 (Zokor)",
+      "version_id": "26.11"
+    },
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "architecture": "x86_64",
+    "wsl2_detected": true,
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU op-mode(s)": "32-bit, 64-bit",
+      "CPU(s)": "16",
+      "On-line CPU(s) list": "0-15",
+      "Model name": "AMD Ryzen 7 7800X3D 8-Core Processor",
+      "Thread(s) per core": "2",
+      "Core(s) per socket": "8",
+      "Socket(s)": "1",
+      "L1d cache": "256 KiB (8 instances)",
+      "L1i cache": "256 KiB (8 instances)",
+      "L2 cache": "8 MiB (8 instances)",
+      "L3 cache": "96 MiB (1 instance)"
+    },
+    "memory_guest_visible_bytes": {
+      "total": 47342800896,
+      "available": 44696096768
+    },
+    "python_version": "3.14.7",
+    "vm_max_map_count": 1048576,
+    "disk": {
+      "available_bytes": 748822978560,
+      "filesystem": "ext4"
+    }
+  },
+  "docker": {
+    "context_transport": "unix",
+    "reachable": true,
+    "client_version": "29.8.0",
+    "server_version": "29.7.2",
+    "daemon_cpus": 16,
+    "daemon_memory_bytes": 47342800896,
+    "daemon_kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "storage_driver": "overlay2",
+    "cgroup_version": "2"
+  },
+  "preflight_observations": {
+    "platform_check": "Linux x86_64",
+    "python_at_least_3_10": true,
+    "docker_context_unix": true,
+    "docker_running_containers": 0,
+    "load_average_1_5_15": [
+      0.0,
+      0.02587890625,
+      0.0
+    ],
+    "runner_lock_probe": "acquired_and_released",
+    "competing_benchmark_observed": false,
+    "host_memory_at_least_7_gib": true,
+    "disk_at_least_15_gib": true,
+    "vm_max_map_count_at_least_262144": true
+  },
+  "benchmark_constants_verified_from_runner": {
+    "docker_cpus": 2,
+    "docker_memory_bytes": 5368709120,
+    "java_heap_bytes": 2147483648,
+    "java_active_processor_count": 2
+  },
+  "notes": [
+    "NixOS guest under WSL2 on a shared Windows host.",
+    "Windows background activity was not measured.",
+    "No Windows physical RAM or Windows/WSL build metadata was captured.",
+    "No benchmark was launched during this preflight."
+  ]
+}
