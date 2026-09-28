@@ -14,7 +14,7 @@ Each setting was tested twice, starting a new OpenSearch container each time. La
 
 Compare settings within each release, not absolute timings between releases. Hosted machines and bundled software differ.
 
-Three local repeats also showed the effect. On OpenSearch 3.8.0, lowering the limit produced a 2.27–2.32× speedup locally versus 2.05–2.06× in Actions. The speedup on 2.19.0 varied more. See [local versus Actions findings](comparisons/local-vs-actions-20260927/FINDINGS.md) for details.
+Three local repetitions also showed the setting effect. See the [original local investigation](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/blob/084a4b3171e2abd71edb86e68b0275f5b2d87752/comparisons/local-vs-actions-20260927/FINDINGS.md) for those measurements.
 
 <details>
 <summary>All measured requests</summary>
@@ -46,6 +46,16 @@ python3 repro.py --version 3.8.0 --output artifacts/3.8.0
 Use a new output directory for each run. The command prints paired client and server ratios and retains `result.json`. A single-release run reports `NOT_ASSESSED`, which is not a failure. The default report assesses `REPRODUCED` only for a complete five-version matrix.
 
 Changing the limit can reject larger Boolean or expanded queries. This is a diagnostic experiment, not a general production recommendation.
+
+### Compare this machine with GitHub
+
+Run three complete matrices and save a comparison ready to commit:
+
+```bash
+python3 run_comparison.py --output comparisons/my-machine
+```
+
+Use `--replace` to rerun an existing machine directory. See the [comparison guide](comparisons/README.md) for prerequisites, replacement behavior, and contributing results.
 
 ### View saved results without Docker
 
@@ -121,11 +131,13 @@ The offline reporter recomputes timing summaries and ratios from the saved sampl
 
 This is a read-only reduced first-page workload. It does not cover production writes, cleanup, or full result traversal. Two comparisons per version in the published run do not support a broad statistical claim.
 
-Three local matrices ran on one Ryzen 7 7800X3D under WSL2, not across the GitHub fleet. Absolute milliseconds depend on the host. Local 2.19.0 ratios ranged from 2.844–6.475×. In one container using the default setting, successive client block medians fell from 67.684 to 21.189 ms. Server timings showed the same pattern. The outlier is retained. The available warmups do not prove steady state, and the cause remains undetermined. See the [ratio chart](comparisons/local-vs-actions-20260927/ratios.svg), [latency chart](comparisons/local-vs-actions-20260927/latency.svg), and [detailed findings](comparisons/local-vs-actions-20260927/FINDINGS.md).
+The [original local investigation](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/blob/084a4b3171e2abd71edb86e68b0275f5b2d87752/comparisons/local-vs-actions-20260927/FINDINGS.md) ran three matrices on one Ryzen 7 7800X3D under WSL2. Its 2.19.0 speedups ranged from 2.844–6.475×, including a container whose client block medians fell from 67.684 to 21.189 ms. Those records retain the outlier but cannot identify its cause. The warmups do not prove steady-state timing, and one host does not establish variation across the GitHub fleet.
+
+For new machine-specific runs, use the [local comparison guide](comparisons/README.md). Do not pool machines: each output compares its three local repeats with the unchanged Actions reference.
 
 ## Supporting evidence and offline checks
 
-The manual [GitHub Actions workflow](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/workflows/reproduce.yml) offers the default `parallel` five-job mode. Its opt-in `repeated` mode runs three fresh hosted VMs, each with all five versions in varied order and a 70-minute matrix-job cap. The repeated mode has been checked offline but has not been run live on GitHub. See the [mode details and comparison notes](comparisons/local-vs-actions-20260927/FINDINGS.md#github-mode-comparison).
+The manual [GitHub Actions workflow](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/actions/workflows/reproduce.yml) offers the default `parallel` five-job mode. Its opt-in `repeated` mode runs three fresh hosted VMs, each with a full five-version matrix in varied order and a 70-minute matrix-job cap. Repeated mode has been checked offline but has not been run live on GitHub. Its implementation is in the [workflow](.github/workflows/reproduce.yml).
 
 There are no schedules, push-triggered benchmarks, or automatic retries. Missing or invalid evidence fails reporting. A green evidence check is distinct from the `REPRODUCED` verdict. Artifacts are retained for 30 days and committed history remains available.
 
@@ -142,7 +154,7 @@ Regenerate the full report from the same raw source and run without changing raw
 python3 report.py --input results/raw --output results
 ```
 
-The reporter preserves raw inputs byte-for-byte. Do not splice a new release into an existing matrix. For the archived four-version dataset, use `--historical-matrix` and the [historical results](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/tree/38f9db311c3262ea2c532bda02ef5eacaf34b575/results). The [local run instructions](comparisons/local-vs-actions-20260927/FINDINGS.md#running-the-same-matrices-locally) and [offline comparison command](comparisons/local-vs-actions-20260927/FINDINGS.md#recompute-this-comparison-offline) are in the repeatability notes.
+The reporter preserves raw inputs byte-for-byte. Do not splice a new release into an existing matrix. For the archived four-version dataset, use `--historical-matrix` and the [historical results](https://github.com/camerondurham/bug-repro-opensearch-keyword-sort/tree/38f9db311c3262ea2c532bda02ef5eacaf34b575/results). For new local comparisons, use the [comparison guide](comparisons/README.md), including its offline re-render command.
 
 ## Provenance
 
