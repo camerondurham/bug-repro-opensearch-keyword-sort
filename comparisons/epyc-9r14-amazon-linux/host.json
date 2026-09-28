@@ -1,0 +1,13 @@
+{
+  "generator": "run_comparison.py",
+  "source_sha": "2b23427c439fe1ffdaece44b2629ac82fd80112c",
+  "started_at": "2026-09-28T04:41:47.061317Z",
+  "finished_at": "2026-09-28T05:18:53.385479Z",
+  "elapsed_seconds": 2226.324158685049,
+  "os": "Linux",
+  "kernel": "5.10.268-274.1092.amzn2int.x86_64",
+  "platform": "Linux-5.10.268-274.1092.amzn2int.x86_64-x86_64-with-glibc2.26",
+  "cpu_count": 16,
+  "cpu_model": "AMD EPYC 9R14",
+  "ram_bytes": 65983815680
+}
