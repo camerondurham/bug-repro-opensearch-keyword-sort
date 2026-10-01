@@ -16,6 +16,8 @@ When collecting, replacing, or contributing local benchmark results, read
    `results/` baseline untouched; inspect the staged diff before committing or
    opening a PR, and commit/push only when authorized.
 
+For the proposed production-shaped workload, start with the [experiment handoff](experiments/production-shaped-keyword-sort/README.md). Its experimental case set is separate from the fixed three-by-five comparison workflow above. Agree on its exact cases and output directory before execution; the authorization, provenance, validation and result-retention rules still apply.
+
 For code-only changes, run `python3 -m unittest -v` and
 `python3 report.py --self-test` offline. Do not alter the experiment to obtain
 a desired ratio. Keep benchmark details in the comparison guide rather than

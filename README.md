@@ -57,6 +57,10 @@ python3 run_comparison.py --output comparisons/my-machine
 
 Use `--replace` to rerun an existing machine directory. See the [comparison guide](comparisons/README.md) for prerequisites, replacement behavior, and contributing results.
 
+### Production-shaped experiments (proposed)
+
+The [production-shaped keyword-sort experiment](experiments/production-shaped-keyword-sort/README.md) contains an anonymized test protocol and agent handoff for selective tenant filters, keyword ties, pagination and nested documents. Its runner is not implemented yet; the published benchmark stays unchanged.
+
 ### View saved results without Docker
 
 The reporter uses Python's standard library and accepts `results/raw/`, an Actions artifact tree, one JSON file, or a retained result directory:
