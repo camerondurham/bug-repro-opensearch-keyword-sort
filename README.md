@@ -79,6 +79,15 @@ Lucene's keyword-sort comparator builds a postings-based competitive iterator. I
 
 Lowering the ceiling limits when this postings optimization can be used for the workload. It does not mean every request always switches paths. Enumerating extra postings can cost more than it saves, so the lower ceiling can improve this reduced search.
 
+The original Lucene change targeted a different trade-off: its 100-hit
+title-sort benchmark benefited from raising the threshold, with a later
+[recheck reporting 57.5% higher QPS](https://github.com/apache/lucene/pull/11903#issuecomment-1790680106).
+Here, the 250-hit OpenSearch fixture shows 1024/128 client-latency ratios
+of 2.05–3.17× on OpenSearch 2.12.0, 2.19.0, and 3.8.0.
+The workloads and interventions differ: changing a shared OpenSearch
+setting is not an isolated revert of the Lucene change, and these results
+do not identify where either strategy wins in general.
+
 Lucene 10.5.0, bundled by OpenSearch 3.8.0, still has the same gate. Indexed-keyword sorting uses the postings path, while the newer doc-values [`SkipperBasedCompetitiveState`](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L648) has adaptive disabling at [line 694](https://github.com/apache/lucene/blob/releases/lucene/10.5.0/lucene/core/src/java/org/apache/lucene/search/comparators/TermOrdValComparator.java#L694). This experiment changes a shared setting on stock binaries. It is not an isolated revert of one commit.
 
 ## Testing methodology
